@@ -604,7 +604,8 @@ Rectangle {
                   }
               })
         .catch(error => {
-                   console.error('Ocurrió un error:', error);
+                   //console.error('Ocurrió un error:', error);
+                   ta1.text=+'Ocurrió un error: '+error
                });
     }
     function setNewJsonFileData(){
@@ -662,8 +663,8 @@ Rectangle {
         unik.mkdir(folderPath)
         let filePath=folderPath+'/'+tiNombre.t.text.replace(/ /g, '_')+'.json'
         unik.setFile(filePath, JSON.stringify(json, null, 2))
-        apps.apps.uFilePath=filePath
-        app.loadFile(apps.apps.uFilePath)
+        apps.uFilePath=filePath
+        app.loadFile(apps.uFilePath)
         //ta1.text+='Se ha creado el archivo: '+filePath
     }
     /*function enter(){
@@ -831,25 +832,24 @@ Rectangle {
                                            } else {
                                                reject('No se encontraron coordenadas para el lugar
  especificado.');
-                                               log.clear()
-                                               log.lv('No se encontraron las coordenadas de geolocalización de '+tiCiudad.text)
+                                               //log.clear()
+                                               ta1.text='No se encontraron las coordenadas de geolocalización de '+tiCiudad.text
                                            }
                                        } catch (error) {
                                            reject('Error al parsear la respuesta JSON.');
-                                           log.clear()
-                                           log.lv('Hay un error de red en estos momentos. Error al solicitar las coordenadas de geolocalización de '+tiCiudad.text)
+                                           //log.clear()
+                                           ta1.text='Hay un error de red en estos momentos. Error al solicitar las coordenadas de geolocalización de '+tiCiudad.text
                                        }
                                    } else {
                                        reject(`Error en la petición: Código de estado ${xhr.status}`);
-                                       log.clear()
-                                       log.lv('Hay un error de red en estos momentos. Error al solicitar las coordenadas de geolocalización de '+tiCiudad.text)
+                                       ta1.text='Hay un error de red en estos momentos. Error al solicitar las coordenadas de geolocalización de '+tiCiudad.text
                                    }
                                };
 
                                xhr.onerror = function() {
                                    reject('Error de red al realizar la petición.');
-                                   log.clear()
-                                   log.lv('Hay un error de red en estos momentos. Error al solicitar las coordenadas de geolocalización de '+tiCiudad.text)
+                                   //log.clear()
+                                   ta1.text='Hay un error de red en estos momentos. Error al solicitar las coordenadas de geolocalización de '+tiCiudad.text
                                };
 
                                xhr.send();

@@ -49,6 +49,7 @@ ApplicationWindow{
                 id: lv
                 model: lm
                 delegate: compLvItem
+                opacity: tCheck.running?1.0:0.5
                 anchors.fill: parent
                 ListModel{
                     id: lm
@@ -138,11 +139,12 @@ ApplicationWindow{
         let f=apps.uFilePath
         if(!unik.fileExist(f)){
             ta1.text='No hay ningún archivo para procesar.'
+            ta1.text+='Último archivo creado: '+apps.uFilePath
             return
         }
         loadFile(apps.uFilePath)
         return
-        let fd1=unik.getFile(f)
+        /*let fd1=unik.getFile(f)
         let j1=JSON.parse(fd1)
         app.cNom=j1.params.n
         unik.mkdir(unik.getPath(3)+'/astromaker')
@@ -153,7 +155,7 @@ ApplicationWindow{
             let jbodie=json.pc['c'+i]
             lm.append(lm.addItem(jbodie, 1, 0))
             lm.append(lm.addItem(jbodie, 0, 0))
-        }
+        }*/
         //ta1.text=JSON.stringify(json, null, 2)
 
 
@@ -164,6 +166,10 @@ ApplicationWindow{
     Shortcut{
         sequence: 'Esc'
         onActivated: Qt.quit()
+    }
+    Shortcut{
+        sequence: 'Space'
+        onActivated: tCheck.running=!tCheck.running
     }
     function loadFile(url){
         if(!unik.fileExist(url))return
@@ -176,7 +182,8 @@ ApplicationWindow{
         mkAnRunSweRequest(j)
     }
     function loadJson(jsonString){
-        let json=JSON.parse(jsonString)
+        console.log('json:'+jsonString)
+        let json=JSON.parse(jsonString.replace(/\n/g, ''))
         for(var i=0;i<Object.keys(json.pc).length;i++){
             let jbodie=json.pc['c'+i]
             lm.append(lm.addItem(jbodie, 1, 0))
@@ -281,9 +288,10 @@ ApplicationWindow{
         c+='UnikQProcess{\n'
         c+='    id: uqp'+ms+'\n'
         c+='    onLogDataChanged:{\n'
-        c+='        let json=(\'\'+logData)\n'
+        //c+='        let json=(\'\'+logData)\n'
         c+='        //log.lv(\'JSON: \'+json)\n'
-        c+='        ta1.text=json\n'
+        //c+='        ta1.text=json\n'
+        c+='            loadJson(logData)\n'
         c+='        uqp'+ms+'.destroy(3000)\n'
         c+='    }\n'
         c+='    Component.onCompleted:{\n'
