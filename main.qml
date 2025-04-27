@@ -1,11 +1,17 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.0
 import QtQuick.Window 2.0
+import FileMaker 1.0
+
+import Qt.labs.settings 1.0
 
 ApplicationWindow{
     id: app
     visibility: 'Maximized'
     color: c1
+
+    property string sweBodiesPythonFile: 'zool_swe_portable_2.10.3.2_v1.py'
+
     property int fs: Screen.width*0.02
     property color c1: 'black'
     property color c2: 'white'
@@ -16,7 +22,23 @@ ApplicationWindow{
     property var aSignsLowerStyle: ['aries', 'tauro', 'geminis', 'cancer', 'leo', 'virgo', 'libra', 'escorpio', 'sagitario', 'capricornio', 'acuario', 'piscis']
     property var aBodies: ['Sol', 'Luna', 'Mercurio', 'Venus', 'Marte', 'Júpiter', 'Saturno', 'Urano', 'Neptuno', 'Plutón', 'N.Norte', 'N.Sur', 'Quirón', 'Selena', 'Lilith', 'Pholus', 'Ceres', 'Pallas', 'Juno', 'Vesta']
 
+    Settings{
+        id: apps
+        fileName: 'astromaker.cfg'
+        property string uFilePath: '/home/ns/Documentos/astromaker/cns/Pablo.json'
+        property color backgroundColor: 'black'
+        property color fontColor: 'white'
+    }
+
     Row{
+        Rectangle{
+            width: app.width/3
+            height: app.height
+            color: 'transparent'
+            border.width: 2
+            border.color: app.c2
+            FileMaker{id: fileMaker}
+        }
         Rectangle{
             width: app.width/3
             height: app.height
@@ -100,16 +122,26 @@ ApplicationWindow{
 
     Timer{
         id: tCheck
-        running: true
+        running: false
         repeat: true
         interval: 5000
         onTriggered: {
+            if(apps.uFilePath===''){
+                ta1.text='No hay ningún archivo para revisar.'
+                return
+            }
             check()
         }
     }
 
     Component.onCompleted: {
-        let f='/home/ns/Documentos/Zool/Ricardo.json'
+        let f=apps.uFilePath
+        if(!unik.fileExist(f)){
+            ta1.text='No hay ningún archivo para procesar.'
+            return
+        }
+        loadFile(apps.uFilePath)
+        return
         let fd1=unik.getFile(f)
         let j1=JSON.parse(fd1)
         app.cNom=j1.params.n
@@ -124,9 +156,7 @@ ApplicationWindow{
         }
         //ta1.text=JSON.stringify(json, null, 2)
 
-        let j={}
-        j.text="sadfasdfas sdf sd as sdf sadf"
-        //lm.append(lm.addItem(j))
+
 
 
     }
@@ -135,7 +165,25 @@ ApplicationWindow{
         sequence: 'Esc'
         onActivated: Qt.quit()
     }
-
+    function loadFile(url){
+        if(!unik.fileExist(url))return
+        let fd1=unik.getFile(url)
+        let j1=JSON.parse(fd1)
+        app.cNom=j1.params.n
+        unik.mkdir(unik.getPath(3)+'/astromaker')
+        let jd=unik.getFile(url)
+        let j=JSON.parse(jd)
+        mkAnRunSweRequest(j)
+    }
+    function loadJson(jsonString){
+        let json=JSON.parse(jsonString)
+        for(var i=0;i<Object.keys(json.pc).length;i++){
+            let jbodie=json.pc['c'+i]
+            lm.append(lm.addItem(jbodie, 1, 0))
+            lm.append(lm.addItem(jbodie, 0, 0))
+        }
+        tCheck.start()
+    }
     function check(){
         let indexForRequest=-1
         let filePathForRequest=''
@@ -212,5 +260,38 @@ ApplicationWindow{
         c+='    }\n'
         c+='}\n'
         let obj=Qt.createQmlObject(c, app, 'uqpcode')
+    }
+    function mkAnRunSweRequest(j){
+        let vd=j.params.d
+        let vm=j.params.m
+        let va=j.params.a
+        let vh=j.params.h
+        let vmin=j.params.min
+        let vgmt=j.params.gmt
+        let vlon=j.params.lon
+        let vlat=j.params.lat
+        let valt=j.params.alt
+
+        let d = new Date(Date.now())
+        let ms=d.getTime()
+        let hsys=j.params.hsys?j.params.hsys:'T'
+        if(j.params.hsys)hsys=j.params.hsys
+        let c='import QtQuick 2.0\n'
+        c+='import unik.UnikQProcess 1.0\n'
+        c+='UnikQProcess{\n'
+        c+='    id: uqp'+ms+'\n'
+        c+='    onLogDataChanged:{\n'
+        c+='        let json=(\'\'+logData)\n'
+        c+='        //log.lv(\'JSON: \'+json)\n'
+        c+='        ta1.text=json\n'
+        c+='        uqp'+ms+'.destroy(3000)\n'
+        c+='    }\n'
+        c+='    Component.onCompleted:{\n'
+        c+='        console.log(\'zm.load() python3 "'+unik.currentFolderPath()+'/py/'+app.sweBodiesPythonFile+'" '+vd+' '+vm+' '+va+' '+vh+' '+vmin+' '+vgmt+' '+vlat+' '+vlon+' '+hsys+' '+unik.currentFolderPath()+' '+valt+'\')\n'
+        c+='        run(\'python3 "'+unik.currentFolderPath()+'/py/'+app.sweBodiesPythonFile+'" '+vd+' '+vm+' '+va+' '+vh+' '+vmin+' '+vgmt+' '+vlat+' '+vlon+' '+hsys+' "'+unik.currentFolderPath()+'" '+valt+'\')\n'
+        //c+='        Qt.quit()\n'
+        c+='    }\n'
+        c+='}\n'
+        let comp=Qt.createQmlObject(c, app, 'uqpswecode')
     }
 }
