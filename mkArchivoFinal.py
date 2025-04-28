@@ -1,6 +1,7 @@
 import sys
 
 def combinar_archivos(archivo_destino, lista_archivos):
+    index=0
     try:
         rutas_archivos = lista_archivos.split(',')
         with open(archivo_destino, 'w') as archivo_final:
@@ -8,17 +9,22 @@ def combinar_archivos(archivo_destino, lista_archivos):
                 try:
                     with open(ruta_archivo.strip(), 'r') as archivo_origen:
                         contenido = archivo_origen.read()
+                        contenido2 = contenido.replace('```html', '').replace('```', '')
                         a1=ruta_archivo.strip().split('/')
                         a2=a1[int(len(a1)-1)]
-                        a3=a2.replace('pos_', 'Estas son las manifestaciones POSITIVAS de tu ').replace('neg_', 'Estas son las manifestaciones NEGATIVAS de tu ').replace('.html', '')
+                        a3=a2.replace('pos_', '<h3>Manifestaciones POSITIVAS de tu ').replace('neg_', '<h3>Manifestaciones NEGATIVAS de tu ').replace('.html', '')
                         a4=a3.split('_')
                         a5=a3.replace('_'+a4[len(a4)-1], '_Casa_'+a4[len(a4)-1])
-                        a6=a5.replace('_', ' ')
-                        archivo_final.write(a6)
+                        a6=a5.replace('_', ' ')+'</h3>'
+                        if index>0:
+                            archivo_final.write(a6)
                         archivo_final.write('\n\n')
-                        archivo_final.write(contenido)
+                        archivo_final.write(contenido2)
                         archivo_final.write('\n')
-                    print(f"Se leyó y agregó el contenido de: {ruta_archivo.strip()}")
+                    index=index+1
+                    if index==1:
+                        print(f"Se leyó y agregó el contenido de: {ruta_archivo.strip()}")
+                        print(f"Se leyó y agregó el contenido de: {contenido}")
                 except FileNotFoundError:
                     print(f"¡Error! No se encontró el archivo: {ruta_archivo.strip()}")
                 except Exception as e:

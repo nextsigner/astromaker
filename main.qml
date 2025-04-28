@@ -1,5 +1,6 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.0
+import QtQuick.Dialogs 1.2
 import QtQuick.Window 2.0
 import FileMaker 1.0
 
@@ -7,8 +8,10 @@ import Qt.labs.settings 1.0
 
 ApplicationWindow{
     id: app
+    visible: true
     visibility: 'Maximized'
     color: c1
+
 
     property string sweBodiesPythonFile: 'zool_swe_portable_2.10.3.2_v1.py'
 
@@ -25,7 +28,8 @@ ApplicationWindow{
     Settings{
         id: apps
         fileName: 'astromaker.cfg'
-        property string uFilePath: '/home/ns/Documentos/astromaker/cns/Pablo.json'
+        property bool enableAutoCons: false
+        property string uFilePath
         property color backgroundColor: 'black'
         property color fontColor: 'white'
     }
@@ -38,6 +42,24 @@ ApplicationWindow{
             border.width: 2
             border.color: app.c2
             FileMaker{id: fileMaker}
+            Row{
+                spacing: app.fs*0.5
+                anchors.right: parent.right
+                Button {
+                    id: setAutoCons
+                    text: apps.enableAutoCons?"Desactivar":"Activar"
+                    onClicked: {
+                        apps.enableAutoCons=!apps.enableAutoCons
+                        tCheck.running=apps.enableAutoCons
+                        if(apps.enableAutoCons)init()
+                    }
+                }
+                Button {
+                    id: openFileButton
+                    text: "Abrir Archivo"
+                    onClicked: fileDialog.visible = true
+                }
+            }
         }
         Rectangle{
             width: app.width/3
@@ -136,13 +158,34 @@ ApplicationWindow{
     }
 
     Component.onCompleted: {
-        let f=apps.uFilePath
-        if(!unik.fileExist(f)){
-            ta1.text='No hay ningún archivo para procesar.'
-            ta1.text+='Último archivo creado: '+apps.uFilePath
-            return
+        ta1.text='Último archivo procesado: '+apps.uFilePath
+        init()
+        //        let f=apps.uFilePath
+//        if(!unik.fileExist(f)){
+//            ta1.text='No hay ningún archivo para procesar.'
+//            ta1.text+='Último archivo creado: '+apps.uFilePath
+//            return
+//        }
+//        loadFile(apps.uFilePath)
+    }
+    FileDialog {
+        id: fileDialog
+        title: "Seleccionar archivo"
+        nameFilters: ["Archivos JSON (*.json)"]
+        selectExisting: true
+        onVisibilityChanged: {
+            if(visible)tCheck.stop()
         }
-        loadFile(apps.uFilePath)
+        onAccepted: {
+            if (fileDialog.fileUrl.toString()) {
+                ta1.text+="Archivo seleccionado:"+fileDialog.fileUrl
+                apps.uFilePath=(''+fileDialog.fileUrl).replace('file://', '')
+                app.loadFile(apps.uFilePath)
+            }
+        }
+        onRejected: {
+            console.log("Selección de archivo cancelada")
+        }
     }
 
     Shortcut{
@@ -160,6 +203,16 @@ ApplicationWindow{
         onActivated: {
             ta1.text+=getFileList().toString()
         }
+    }
+    function init(){
+        if(!apps.enableAutoCons)return
+        let f=apps.uFilePath
+        if(!unik.fileExist(f)){
+            ta1.text='No hay ningún archivo para procesar.\n'
+            ta1.text+='Último archivo creado: '+apps.uFilePath+'\n'
+            return
+        }
+        loadFile(apps.uFilePath)
     }
     function loadFile(url){
         if(!unik.fileExist(url))return
@@ -183,15 +236,16 @@ ApplicationWindow{
     }
 
     function check(){
+        if(!apps.enableAutoCons)return
         let indexForRequest=-1
         let filePathForRequest=''
         let hayTareas=false
+        let folder=unik.getPath(3)+'/astromaker/'+app.cNom
         for(var i=0;i<lm.count;i++){
             let e=lm.get(i).e
             if(e===1)return
             let t=lm.get(i).t===1?'pos':'neg'
             let j=lm.get(i).j
-            let folder=unik.getPath(3)+'/astromaker/'+app.cNom
             if(!unik.folderExist(folder)){
                 unik.mkdir(folder)
             }
@@ -219,7 +273,13 @@ ApplicationWindow{
         if(!hayTareas){
             ta1.text='Aviso: No hay más tareas para realizar.\n\n'
             tCheck.stop()
+            let headData=getHtmlHead()
+            ta1.text+=headData
+            unik.setFile(folder+'/head.html', headData)
+            let footData='</body></html>'
+            unik.setFile(folder+'/foot.html', footData)
             mkAllFilesToOne()
+            sendMessage('Se terminó de crear la carta de '+app.cNom)
         }
     }
     function prepareRequest(index){
@@ -299,10 +359,11 @@ ApplicationWindow{
     }
     function getFileList(){
         let aFileList=[]
+        let folder=unik.getPath(3)+'/astromaker/'+app.cNom
+        aFileList.push(folder+'/head.html')
         for(var i=0;i<lm.count;i++){
             let j=lm.get(i).j
-            let folder=unik.getPath(3)+'/astromaker/'+app.cNom
-           let b=j.nom
+            let b=j.nom
             let s=app.aSigns[j.is]
             let h=j.ih
             let filePath=''
@@ -318,6 +379,7 @@ ApplicationWindow{
             }
             aFileList.push(filePath)
         }
+        aFileList.push(folder+'/foot.html')
         return aFileList
     }
     function mkAllFilesToOne(){
@@ -341,12 +403,38 @@ ApplicationWindow{
         let comp=Qt.createQmlObject(c, app, 'uqpswecode')
     }
     function getHtmlHead(){
+        let jd=unik.getFile(apps.uFilePath)
+        let j=JSON.parse(jd)
+        let nom=j.params.n.replace(/_/g, ' ')
+        let vd=j.params.d
+        let vm=j.params.m
+        let va=j.params.a
+        let vh=j.params.h
+        let vmin=j.params.min
+        let vgmt=j.params.gmt
+        let vlon=j.params.lon
+        let vlat=j.params.lat
+        let valt=j.params.alt
+        let vciudad=j.params.c
+        let fecha=vd+'/'+vm+'/'+va
+        let hora=vh+':'+vmin+'<b> GMT:</b> '+vgmt
+        let en=vciudad+' <b>Geolocalización:</b> Latitud '+vlat+'  Longitud '+vlon
+        let stringInfo=''
+        if(j.params.g==='m'){
+            stringInfo='Nacido'
+        }else if(j.params.g==='m'){
+            stringInfo='Nacida'
+        }else{
+            stringInfo='Persona nacida'
+        }
+        stringInfo+=' el día '+fecha+' a la hora '+hora+' en '+en+'.'
+
         let s='<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ejemplo con Fondo Negro y Texto Blanco</title>
+    <title>Carta Natal de '+nom+'</title>
     <style>
         body {
             background-color: black;
@@ -355,8 +443,33 @@ ApplicationWindow{
     </style>
 </head>
 <body>
-<h1>Carta Natal de Natalia Soledad Pintos</h1>
+<h1>Carta Natal de '+nom+'</h1>
 
-<h3>Nacida el día 8/9/1980 a las 17:00hs en González Catan Buenos Aires</h3>'
+<h3>'+stringInfo+'</h3>'
+        return s
+    }
+    function sendMessage(msg){
+        var xhr = new XMLHttpRequest();
+        var url = "https://api.pushover.net/1/messages.json";
+        var params = "token=a7biiubgzgcjjm4pdp8s8wghcxh81k" +
+                "&user=udj7y27mkawju5mtmph7r7qxr6ng7b" +
+                "&message=" + encodeURIComponent(msg);
+
+        xhr.open("POST", url, true);
+        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200) {
+                    //log.lv("Notificación enviada exitosamente:" + xhr.responseText);
+                    // Aquí podrías mostrar un mensaje al usuario
+                } else {
+                    //log.lv("Error al enviar la notificación:" + xhr.status, xhr.responseText);
+                    // Aquí podrías mostrar un mensaje de error al usuario
+                }
+            }
+        };
+
+        xhr.send(params);
     }
 }
