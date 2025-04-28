@@ -160,6 +160,7 @@ Rectangle {
                     }
                 }
             }
+            Item{width: 1; height: app.fs}
             ZoolTextInput{
                 id: tiCiudad
                 width: tiNombre.width

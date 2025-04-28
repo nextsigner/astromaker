@@ -143,24 +143,6 @@ ApplicationWindow{
             return
         }
         loadFile(apps.uFilePath)
-        return
-        /*let fd1=unik.getFile(f)
-        let j1=JSON.parse(fd1)
-        app.cNom=j1.params.n
-        unik.mkdir(unik.getPath(3)+'/astromaker')
-        let jd=unik.getFile('./ejemplo.json')
-        let json=JSON.parse(jd)
-
-        for(var i=0;i<Object.keys(json.pc).length;i++){
-            let jbodie=json.pc['c'+i]
-            lm.append(lm.addItem(jbodie, 1, 0))
-            lm.append(lm.addItem(jbodie, 0, 0))
-        }*/
-        //ta1.text=JSON.stringify(json, null, 2)
-
-
-
-
     }
 
     Shortcut{
@@ -168,8 +150,16 @@ ApplicationWindow{
         onActivated: Qt.quit()
     }
     Shortcut{
-        sequence: 'Space'
-        onActivated: tCheck.running=!tCheck.running
+        sequence: 'Ctrl+Space'
+        onActivated: {
+            tCheck.running=!tCheck.running
+        }
+    }
+    Shortcut{
+        sequence: 'Ctrl+f'
+        onActivated: {
+            ta1.text+=getFileList().toString()
+        }
     }
     function loadFile(url){
         if(!unik.fileExist(url))return
@@ -182,7 +172,7 @@ ApplicationWindow{
         mkAnRunSweRequest(j)
     }
     function loadJson(jsonString){
-        console.log('json:'+jsonString)
+        lm.clear()
         let json=JSON.parse(jsonString.replace(/\n/g, ''))
         for(var i=0;i<Object.keys(json.pc).length;i++){
             let jbodie=json.pc['c'+i]
@@ -191,6 +181,7 @@ ApplicationWindow{
         }
         tCheck.start()
     }
+
     function check(){
         let indexForRequest=-1
         let filePathForRequest=''
@@ -227,9 +218,12 @@ ApplicationWindow{
         }
         if(!hayTareas){
             ta1.text='Aviso: No hay más tareas para realizar.\n\n'
+            tCheck.stop()
+            mkAllFilesToOne()
         }
     }
     function prepareRequest(index){
+        if(!tCheck.running)return ''
         let cons=''
         let t=lm.get(index).t
         let strManPosONeg=''
@@ -242,10 +236,11 @@ ApplicationWindow{
         let b=j.nom
         let s=app.aSigns[j.is]
         let h=j.ih
-        cons+='Consulta sobre Astrología. Dime cómo se manifiestan en el plano astrológico, en este caso de manera '+strManPosONeg+', es decir, quiero que en tu respuesta me digas al menos 10 manifestaciones '+strManPosONeg+'s de '+b+' en el signo '+s+' en Casa '+h+'. El formato de tu respuesta debe ser la siguiente; En texto plano, en 10 párrafos, que cada párrafo comience con el tipo de manifestación, luego 2 puntos, a modo de título introductorio y 2 o 3 oraciones explicándo la manifestación en cuentión. No quiero explicación extra al inicio ni al pié. Explícaselo a una persona llamada '+app.cNom+' en segunda persona.'
+        cons+='Consulta sobre Astrología. Dime cómo se manifiestan en el plano astrológico, en este caso de manera '+strManPosONeg+', es decir, quiero que en tu respuesta me digas al menos 10 manifestaciones '+strManPosONeg+'s de '+b+' en el signo '+s+' en Casa '+h+'. El formato de tu respuesta debe ser la siguiente; En texto plano, en 10 párrafos, que cada párrafo comience con el tipo de manifestación, luego 2 puntos, a modo de título introductorio y 2 o 3 oraciones explicándo la manifestación en cuentión. No quiero explicación extra al inicio ni al pié. Explícaselo a una persona llamada '+app.cNom.replace(/_/g, '_')+' en segunda persona. No es necesario que utilices su nombre completo. Preferentemente utiliza su primer nombre. No es necesario que en la lista enumeres con un número entero.'
         return cons
     }
     function mkAIRequest(cons, filePath, itemIndex){
+        if(!tCheck.running)return
         let d=new Date(Date.now())
         let ms=d.getTime()
         let c=''
@@ -297,6 +292,44 @@ ApplicationWindow{
         c+='    Component.onCompleted:{\n'
         c+='        console.log(\'zm.load() python3 "'+unik.currentFolderPath()+'/py/'+app.sweBodiesPythonFile+'" '+vd+' '+vm+' '+va+' '+vh+' '+vmin+' '+vgmt+' '+vlat+' '+vlon+' '+hsys+' '+unik.currentFolderPath()+' '+valt+'\')\n'
         c+='        run(\'python3 "'+unik.currentFolderPath()+'/py/'+app.sweBodiesPythonFile+'" '+vd+' '+vm+' '+va+' '+vh+' '+vmin+' '+vgmt+' '+vlat+' '+vlon+' '+hsys+' "'+unik.currentFolderPath()+'" '+valt+'\')\n'
+        //c+='        Qt.quit()\n'
+        c+='    }\n'
+        c+='}\n'
+        let comp=Qt.createQmlObject(c, app, 'uqpswecode')
+    }
+    function getFileList(){
+        let aFileList=[]
+        for(var i=0;i<lm.count;i++){
+            let j=lm.get(i).j
+            let folder=unik.getPath(3)+'/astromaker/'+app.cNom
+           let b=j.nom
+            let s=app.aSigns[j.is]
+            let h=j.ih
+            let filePath=''
+            let fileName='pos_'+b+'_'+s+'_'+h+'.txt'
+            filePath=folder+'/'+fileName
+            aFileList.push(filePath)
+            fileName='neg_'+b+'_'+s+'_'+h+'.txt'
+            filePath=folder+'/'+fileName
+            aFileList.push(filePath)
+        }
+        return aFileList
+    }
+    function mkAllFilesToOne(){
+        let aFileList=getFileList()
+        let d = new Date(Date.now())
+        let ms=d.getTime()
+        let c='import QtQuick 2.0\n'
+        c+='import unik.UnikQProcess 1.0\n'
+        c+='UnikQProcess{\n'
+        c+='    id: uqp'+ms+'\n'
+        c+='    onLogDataChanged:{\n'
+        c+='        ta1.text=logData\n'
+        c+='        uqp'+ms+'.destroy(3000)\n'
+        c+='    }\n'
+        c+='    Component.onCompleted:{\n'
+        //c+='        console.log(\'zm.load() python3 "'+unik.currentFolderPath()+'/py/'+app.sweBodiesPythonFile+'" '+vd+' '+vm+' '+va+' '+vh+' '+vmin+' '+vgmt+' '+vlat+' '+vlon+' '+hsys+' '+unik.currentFolderPath()+' '+valt+'\')\n'
+        c+='        run(\'python3 "'+unik.currentFolderPath()+'/mkArchivoFinal.py" "'+unik.getPath(3)+'/astromaker/Carta_Completa_de_'+app.cNom+'.txt"  "'+aFileList.toString()+'"\')\n'
         //c+='        Qt.quit()\n'
         c+='    }\n'
         c+='}\n'
