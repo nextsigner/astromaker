@@ -198,7 +198,7 @@ ApplicationWindow{
             let b=j.nom
             let s=app.aSigns[j.is]
             let h=j.ih
-            let fileName=t+'_'+b+'_'+s+'_'+h+'.txt'
+            let fileName=t+'_'+b+'_'+s+'_'+h+'.html'
             let filePath=folder+'/'+fileName
             filePathForRequest=filePath
             if(!unik.fileExist(filePath)){
@@ -236,7 +236,7 @@ ApplicationWindow{
         let b=j.nom
         let s=app.aSigns[j.is]
         let h=j.ih
-        cons+='Consulta sobre Astrología. Dime cómo se manifiestan en el plano astrológico, en este caso de manera '+strManPosONeg+', es decir, quiero que en tu respuesta me digas al menos 10 manifestaciones '+strManPosONeg+'s de '+b+' en el signo '+s+' en Casa '+h+'. El formato de tu respuesta debe ser la siguiente; En texto plano, en 10 párrafos, que cada párrafo comience con el tipo de manifestación, luego 2 puntos, a modo de título introductorio y 2 o 3 oraciones explicándo la manifestación en cuentión. No quiero explicación extra al inicio ni al pié. Explícaselo a una persona llamada '+app.cNom.replace(/_/g, '_')+' en segunda persona. No es necesario que utilices su nombre completo. Preferentemente utiliza su primer nombre. No es necesario que en la lista enumeres con un número entero.'
+        cons+='Consulta sobre Astrología. Dime cómo se manifiestan en el plano astrológico, en este caso de manera '+strManPosONeg+', es decir, quiero que en tu respuesta me digas al menos 10 manifestaciones '+strManPosONeg+'s de '+b+' en el signo '+s+' en Casa '+h+'. El formato de tu respuesta debe ser la siguiente; En formato HTML, en 10 párrafos, que cada párrafo comience con el tipo de manifestación en negrita con 2 puntos, a modo de título introductorio y 2 o 3 oraciones explicándo la manifestación en cuentión. El listado de manifestaciones debe estar en el contexto de una lista HTML. No quiero explicación extra al inicio ni al pié. Explícaselo a una persona llamada '+app.cNom.replace(/_/g, '_')+' en segunda persona. No es necesario que utilices su nombre completo. Preferentemente utiliza su primer nombre. No es necesario que en la lista enumeres con un número entero.'
         return cons
     }
     function mkAIRequest(cons, filePath, itemIndex){
@@ -306,11 +306,16 @@ ApplicationWindow{
             let s=app.aSigns[j.is]
             let h=j.ih
             let filePath=''
-            let fileName='pos_'+b+'_'+s+'_'+h+'.txt'
-            filePath=folder+'/'+fileName
-            aFileList.push(filePath)
-            fileName='neg_'+b+'_'+s+'_'+h+'.txt'
-            filePath=folder+'/'+fileName
+
+            let t=lm.get(i).t
+            let fileName=''
+            if(t===1){
+                fileName='pos_'+b+'_'+s+'_'+h+'.html'
+                filePath=folder+'/'+fileName
+            }else{
+                fileName='neg_'+b+'_'+s+'_'+h+'.html'
+                filePath=folder+'/'+fileName
+            }
             aFileList.push(filePath)
         }
         return aFileList
@@ -329,10 +334,29 @@ ApplicationWindow{
         c+='    }\n'
         c+='    Component.onCompleted:{\n'
         //c+='        console.log(\'zm.load() python3 "'+unik.currentFolderPath()+'/py/'+app.sweBodiesPythonFile+'" '+vd+' '+vm+' '+va+' '+vh+' '+vmin+' '+vgmt+' '+vlat+' '+vlon+' '+hsys+' '+unik.currentFolderPath()+' '+valt+'\')\n'
-        c+='        run(\'python3 "'+unik.currentFolderPath()+'/mkArchivoFinal.py" "'+unik.getPath(3)+'/astromaker/Carta_Completa_de_'+app.cNom+'.txt"  "'+aFileList.toString()+'"\')\n'
+        c+='        run(\'python3 "'+unik.currentFolderPath()+'/mkArchivoFinal.py" "'+unik.getPath(3)+'/astromaker/Carta_Completa_de_'+app.cNom+'.html"  "'+aFileList.toString()+'"\')\n'
         //c+='        Qt.quit()\n'
         c+='    }\n'
         c+='}\n'
         let comp=Qt.createQmlObject(c, app, 'uqpswecode')
+    }
+    function getHtmlHead(){
+        let s='<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ejemplo con Fondo Negro y Texto Blanco</title>
+    <style>
+        body {
+            background-color: black;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<h1>Carta Natal de Natalia Soledad Pintos</h1>
+
+<h3>Nacida el día 8/9/1980 a las 17:00hs en González Catan Buenos Aires</h3>'
     }
 }

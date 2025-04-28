@@ -10,7 +10,7 @@ def combinar_archivos(archivo_destino, lista_archivos):
                         contenido = archivo_origen.read()
                         a1=ruta_archivo.strip().split('/')
                         a2=a1[int(len(a1)-1)]
-                        a3=a2.replace('pos_', 'Estas son las manifestaciones POSITIVAS de tu ').replace('neg_', 'Estas son las manifestaciones NEGATIVAS de tu ').replace('.txt', '')
+                        a3=a2.replace('pos_', 'Estas son las manifestaciones POSITIVAS de tu ').replace('neg_', 'Estas son las manifestaciones NEGATIVAS de tu ').replace('.html', '')
                         a4=a3.split('_')
                         a5=a3.replace('_'+a4[len(a4)-1], '_Casa_'+a4[len(a4)-1])
                         a6=a5.replace('_', ' ')
@@ -35,4 +35,4 @@ if __name__ == "__main__":
         combinar_archivos(nombre_archivo_destino, rutas_archivos)
     else:
         print("Uso: python script.py <archivo_destino> <ruta_archivo1,ruta_archivo2,...>")
-        print("Ejemplo: python combinar.py archivo_final.txt /home/usuario/archivo1.txt,/datos/archivo2.txt,/tmp/archivo3.txt")
+        print("Ejemplo: python combinar.py archivo_final.html /home/usuario/archivo1.html,/datos/archivo2.html,/tmp/archivo3.html")
