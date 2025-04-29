@@ -92,6 +92,9 @@ ApplicationWindow{
                         Rectangle{
                             anchors.fill: parent
                             color: e===0?app.c1:(e===1?'red':'green')
+                            onColorChanged: {
+                                if(color==='red')lv.currentIndex=index
+                            }
                             border.width: 1
                             border.color: app.c2
                             radius: app.fs*0.1
@@ -216,7 +219,7 @@ ApplicationWindow{
     }
     function loadFile(url){
         if(!unik.fileExist(url))return
-        let fd1=unik.getFile(url)
+        let fd1=unik.getFile(url).replace(/\n/g, '')
         let j1=JSON.parse(fd1)
         app.cNom=j1.params.n
         unik.mkdir(unik.getPath(3)+'/astromaker')
@@ -276,7 +279,9 @@ ApplicationWindow{
             let headData=getHtmlHead()
             ta1.text+=headData
             unik.setFile(folder+'/head.html', headData)
-            let footData='</body></html>'
+            let footData=''
+            footData+='<br><hr><br><h4>Creado por Ricardo Martín Pizarro - 2025</h4><h4>Whatsapp +54 9 1138024370</h4><hr><br>'
+            footData+='</body></html>'
             unik.setFile(folder+'/foot.html', footData)
             mkAllFilesToOne()
             sendMessage('Se terminó de crear la carta de '+app.cNom)
@@ -312,7 +317,8 @@ ApplicationWindow{
         c+='    id: uqp'+ms+'\n'
         c+='    onLogDataChanged:{\n'
         c+='        unik.setFile(\''+filePath+'\', logData)\n'
-        c+='        ta1.text+=logData\n\n'
+        //c+='        ta1.text+=logData\n\n'
+        c+='        ta1.text="Se ha procesado la consulta '+itemIndex+'/"+lm.count\n\n'
         c+='        lm.setProperty('+itemIndex+', "e", 2)\n'
         c+='        item'+ms+'.destroy(0)\n'
         c+='    }\n'
@@ -392,6 +398,8 @@ ApplicationWindow{
         c+='    id: uqp'+ms+'\n'
         c+='    onLogDataChanged:{\n'
         c+='        ta1.text=logData\n'
+        c+='        let m0=logData.split("Url de Carta: ")\n'
+        c+='        Qt.openUrlExternally(m0[1].replace(/\\n/g, \'\'))\n'
         c+='        uqp'+ms+'.destroy(3000)\n'
         c+='    }\n'
         c+='    Component.onCompleted:{\n'

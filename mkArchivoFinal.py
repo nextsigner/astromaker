@@ -12,24 +12,22 @@ def combinar_archivos(archivo_destino, lista_archivos):
                         contenido2 = contenido.replace('```html', '').replace('```', '')
                         a1=ruta_archivo.strip().split('/')
                         a2=a1[int(len(a1)-1)]
-                        a3=a2.replace('pos_', '<h3>Manifestaciones POSITIVAS de tu ').replace('neg_', '<h3>Manifestaciones NEGATIVAS de tu ').replace('.html', '')
+                        a3=a2.replace('pos_', '<h3>Manifestaciones POSITIVAS de tu ').replace('neg_', '<h3>Manifestaciones NEGATIVAS de tu ').replace('head.html', '2WSAZQ').replace('.html', '')
                         a4=a3.split('_')
                         a5=a3.replace('_'+a4[len(a4)-1], '_Casa_'+a4[len(a4)-1])
                         a6=a5.replace('_', ' ')+'</h3>'
-                        if index>0:
+                        if index > 0 and index != len(rutas_archivos)-1:
                             archivo_final.write(a6)
-                        archivo_final.write('\n\n')
+                        archivo_final.write('<br>')
                         archivo_final.write(contenido2)
                         archivo_final.write('\n')
                     index=index+1
-                    if index==1:
-                        print(f"Se leyó y agregó el contenido de: {ruta_archivo.strip()}")
-                        print(f"Se leyó y agregó el contenido de: {contenido}")
                 except FileNotFoundError:
                     print(f"¡Error! No se encontró el archivo: {ruta_archivo.strip()}")
                 except Exception as e:
                     print(f"¡Error al leer el archivo {ruta_archivo.strip()}: {e}")
         print(f"\n¡Proceso completado! El contenido de los archivos se ha guardado en: {archivo_destino}")
+        print(f"\nUrl de Carta: file://{archivo_destino}")
 
     except Exception as e:
         print(f"¡Ocurrió un error general: {e}")
