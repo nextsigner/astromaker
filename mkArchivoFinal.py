@@ -13,7 +13,11 @@ def combinar_archivos(archivo_destino, lista_archivos):
                         a1=ruta_archivo.strip().split('/')
                         a2=a1[int(len(a1)-1)]
                         #print(f"\na2: {a2}")
-                        if a2 == "inter_house_6.html":
+                        if a2 == "inter_house_1.html":
+                            a6="<h3>Personalidad e impresión hacia los demás</h3>"
+                        elif a2 == "inter_house_2.html":
+                            a6="<h3>Capacidad de Materializar, recursos, economía, interacción con la naturaleza, belleza y disfrute de la vida</h3>"
+                        elif a2 == "inter_house_6.html":
                             a6="<h3>Ámbito laboral, rutinas y salud</h3>"
                         else:
                             a3=a2.replace('pos_', '<h3>Manifestaciones POSITIVAS de tu ').replace('neg_', '<h3>Manifestaciones NEGATIVAS de tu ').replace('head.html', '2WSAZQ').replace('.html', '')

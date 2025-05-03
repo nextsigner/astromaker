@@ -152,9 +152,9 @@ ApplicationWindow{
                                 let h=j.ih
                                 let deg=j.gdec
                                 str+=b+' en '+s+' en Casa '+h
-                                txt1.text=str
+                                txt1.text='<b>'+parseInt(index+1)+'</b> '+str
                             }else{
-                                txt1.text='Casa '+j.house+' e:'+e
+                                txt1.text='<b>'+parseInt(index+1)+'</b> Casa '+j.house//+' e:'+e
                             }
                         }
                     }
@@ -279,9 +279,13 @@ ApplicationWindow{
             let jbodie=json.pc['c'+i]
             lm.append(lm.addItem(jbodie, 1, 0))
             lm.append(lm.addItem(jbodie, 0, 0))
-            app.uBodiesDataList+=jbodie.nom+' en '+app.aSigns[jbodie.is]+' en casa '+jbodie.ih+'\n'
+            app.uBodiesDataList+=jbodie.nom+' en '+app.aSigns[jbodie.is]+' en casa '+jbodie.ih+',\n'
         }
         let j={}
+        j.house=1
+        lm.append(lm.addItem(j, 0, 0))
+        j.house=2
+        lm.append(lm.addItem(j, 0, 0))
         j.house=6
         lm.append(lm.addItem(j, 0, 0))
         //lm.append(lm.addItem(j, 0, 0))
@@ -351,7 +355,7 @@ ApplicationWindow{
             }else{
                 mkAIRequest(getConsHouse(consultarHousesNum), filePathForRequest, indexForRequest)
             }
-
+            lv.currentIndex=indexForRequest
             //ta1.text+='Consultando: '+prepareRequest(indexForRequest)+'.\n\n'
             //ta1.text+='\n\n'+getAspCons()
         }
@@ -455,8 +459,23 @@ ApplicationWindow{
         let aFileList=[]
         let folder=unik.getPath(3)+'/astromaker/'+app.cNom
         aFileList.push(folder+'/head.html')
-        let fileName='inter_house_6.html'
+
+        //Contexto de Aspectos de Casa 1
+        let numHouse=1
+        let fileName='inter_house_'+numHouse+'.html'
         let filePath=folder+'/'+fileName
+        aFileList.push(filePath)
+
+        //Contexto de Aspectos de Casa 2
+        numHouse=2
+        fileName='inter_house_'+numHouse+'.html'
+        filePath=folder+'/'+fileName
+        aFileList.push(filePath)
+
+        //Contexto de Aspectos de Casa 6
+        numHouse=6
+        fileName='inter_house_'+numHouse+'.html'
+        filePath=folder+'/'+fileName
         aFileList.push(filePath)
 
         for(var i=0;i<lm.count-1;i++){
@@ -750,6 +769,8 @@ ApplicationWindow{
             strCuspide+='Ten en cuenta que el regente de '+sc+', Neptuno, en esta carta natal se encuentra en el signo '+bCuspSign+' en el °'+bCuspDeg+' de la casa '+bCuspHouse+'. '
         }
 
+        s+=strCuspide+'\n'
+
         let aBodies=[]
         let strBodiesInHouse=''
         for(var i=0;i<app.aBodies.length;i++){
@@ -759,20 +780,40 @@ ApplicationWindow{
                 //strBodiesInHouse=' '+bd.nom
             }
         }
-        s+='\nAquí tienes la lista de cuerpos astrológicos en casa '+h+':\n'+strBodiesInHouse+'\n'
+        let strListOrNotList=''
+        let cantBodiesListInHouse=0
         let linesBodieList=app.uBodiesDataList.split('\n')
         for(i=0;i<linesBodieList.length;i++){
-            if(linesBodieList[i].indexOf('casa '+h)>=0){
-                s+=linesBodieList[i]+'\n'
+            if(linesBodieList[i].indexOf('casa '+h+',')>=0){
+                if(cantBodiesListInHouse===0){
+                    strListOrNotList+=(' '+linesBodieList[i]).replace(',', ';')+'\n'
+                }else{
+                    strListOrNotList+=''+(' '+linesBodieList[i]).replace(',', ';')+'\n'
+                }
+                /*if(linesBodieList.length!==i){
+                    strListOrNotList+=linesBodieList[i]+'\n'
+                }else{
+                    strListOrNotList+=' y '+linesBodieList[i]+'.\n'
+                }*/
+                cantBodiesListInHouse++
             }
         }
-        s+='\n'
+        strListOrNotList+='. \n'
+        if(cantBodiesListInHouse===0){
+            s+='\nTen en cuenta que no hay cuerpos astrológicos en la casa '+h+'.\n'
+        }else if(cantBodiesListInHouse===1){
+            s+='\nEste es el único cuerpo astrológico en la casa '+h+':\n'//+strBodiesInHouse+'\n'
+        }else{
+            s+='\nAquí tienes la lista de cuerpos astrológicos en casa '+h+':\n'//+strBodiesInHouse+'\n'
+        }
+        s+=strListOrNotList
+        s+='\nAspectos astrológicos: '
         for(i=0;i<aBodies.length;i++){
             let lines=app.uAspsData.split('\n')
             for(var i2=0;i2<lines.length;i2++){
                 let bn=app.aBodies[aBodies[i]]
                 if(lines[i2].indexOf(bn)>=0){
-                    s+=lines[i2]+'\n'
+                    s+=lines[i2]+';\n'
                 }
             }
         }
