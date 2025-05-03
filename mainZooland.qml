@@ -46,19 +46,151 @@ ApplicationWindow{
         property string uFilePath
         property color backgroundColor: 'black'
         property color fontColor: 'white'
+        property bool desTec: false
+        property bool sendPurpose: false
     }
 
-    Row{
+    Column{
+        Row{
+            Rectangle{
+                width: app.width/3
+                height: app.height-xCtrls.height
+                color: 'transparent'
+                border.width: 2
+                border.color: app.c2
+                clip: true
+                FileMaker{id: fileMaker}
+            }
+            Rectangle{
+                width: app.width/3
+                height: app.height-xCtrls.height
+                color: 'transparent'
+                border.width: 2
+                border.color: app.c2
+                clip: true
+                ListView{
+                    id: lv
+                    model: lm
+                    delegate: compLvItem
+                    opacity: tCheck.running?1.0:0.5
+                    anchors.fill: parent
+                    ListModel{
+                        id: lm
+                        function addItem(json, tipo, estado){
+                            return {
+                                j: json,
+                                t: tipo,
+                                e: estado
+                            }
+                        }
+                    }
+                    Component{
+                        id: compLvItem
+                        Rectangle{
+                            width: parent.width
+                            height: txt1.contentHeight+app.fs*0.5
+                            color: 'transparent'
+                            Rectangle{
+                                anchors.fill: parent
+                                color: e===0?app.c1:(e===1?'red':'green')
+                                onColorChanged: {
+                                    if(color==='red')lv.currentIndex=index
+                                }
+                                border.width: 1
+                                border.color: app.c2
+                                radius: app.fs*0.1
+                                //visible:
+                            }
+                            Text{
+                                id: txt1
+                                width: parent.width-app.fs*0.5
+                                font.pixelSize: app.fs*0.5
+                                color: app.c2
+                                wrapMode: Text.WordWrap
+                                anchors.centerIn: parent
+                            }
+
+                            Component.onCompleted: {
+                                if(!j.house){
+                                    let str=t===1?'<b>Pos: </b>':'<b>Neg: </b>'
+                                    let b=j.nom
+                                    let s=app.aSigns[j.is]
+                                    let h=j.ih
+                                    let deg=j.gdec
+                                    str+=b+' en '+s+' en Casa '+h
+                                    txt1.text='<b>'+parseInt(index+1)+'</b> '+str
+                                }else{
+                                    txt1.text='<b>'+parseInt(index+1)+'</b> Casa '+j.house//+' e:'+e
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            Rectangle{
+                width: app.width/3
+                height: app.height-xCtrls.height
+                color: 'transparent'
+                border.width: 2
+                border.color: app.c2
+                clip: true
+                Flickable{
+                    id: flk1
+                    contentWidth: parent.width
+                    contentHeight: ta1.contentHeight+app.fs*3
+                    anchors.fill: parent
+                    TextArea{
+                        id: ta1
+                        width: parent.width
+                        height: contentHeight+app.fs
+                        color: app.c2
+                        font.pixelSize: app.fs*0.5
+                        wrapMode: TextArea.WordWrap
+                        onTextChanged: flk1.contentY=flk1.contentHeight-flk1.height
+                    }
+                }
+            }
+        }
         Rectangle{
-            width: app.width/3
-            height: app.height
+            id: xCtrls
+            width: parent.width
+            height: app.fs*1.5
             color: 'transparent'
-            border.width: 2
-            border.color: app.c2
-            FileMaker{id: fileMaker}
+            border.width: 1
+            border.color: 'white'
             Row{
                 spacing: app.fs*0.5
-                anchors.right: parent.right
+                anchors.centerIn: parent
+                Row{
+                    spacing: app.fs*0.1
+                    anchors.verticalCenter: parent.verticalCenter
+                    Text{
+                        text: 'Describir Aspectos'
+                        font.pixelSize: app.fs*0.5
+                        color: app.c2
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                    CheckBox{
+                        checked: apps.desTec
+                        anchors.verticalCenter: parent.verticalCenter
+                        onCheckedChanged: apps.desTec=checked
+                    }
+                }
+                Row{
+                    spacing: app.fs*0.1
+                    anchors.verticalCenter: parent.verticalCenter
+                    Text{
+                        text: 'Avisar en Purpose'
+                        font.pixelSize: app.fs*0.5
+                        color: app.c2
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                    CheckBox{
+                        checked: apps.sendPurpose
+                        anchors.verticalCenter: parent.verticalCenter
+                        onCheckedChanged: apps.sendPurpose=checked
+                    }
+                }
                 Button {
                     id: setAutoCons
                     text: apps.enableAutoCons?"Desactivar":"Activar"
@@ -93,93 +225,6 @@ ApplicationWindow{
                     font.pixelSize: app.fs*0.35
                     visible: app.dev
                     onClicked: apps.enableDev=!apps.enableDev
-                }
-            }
-        }
-        Rectangle{
-            width: app.width/3
-            height: app.height
-            color: 'transparent'
-            border.width: 2
-            border.color: app.c2
-            ListView{
-                id: lv
-                model: lm
-                delegate: compLvItem
-                opacity: tCheck.running?1.0:0.5
-                anchors.fill: parent
-                ListModel{
-                    id: lm
-                    function addItem(json, tipo, estado){
-                        return {
-                            j: json,
-                            t: tipo,
-                            e: estado
-                        }
-                    }
-                }
-                Component{
-                    id: compLvItem
-                    Rectangle{
-                        width: parent.width
-                        height: txt1.contentHeight+app.fs*0.5
-                        color: 'transparent'
-                        Rectangle{
-                            anchors.fill: parent
-                            color: e===0?app.c1:(e===1?'red':'green')
-                            onColorChanged: {
-                                if(color==='red')lv.currentIndex=index
-                            }
-                            border.width: 1
-                            border.color: app.c2
-                            radius: app.fs*0.1
-                            //visible:
-                        }
-                        Text{
-                            id: txt1
-                            width: parent.width-app.fs*0.5
-                            font.pixelSize: app.fs*0.5
-                            color: app.c2
-                            wrapMode: Text.WordWrap
-                            anchors.centerIn: parent
-                        }
-
-                        Component.onCompleted: {
-                            if(!j.house){
-                                let str=t===1?'<b>Pos: </b>':'<b>Neg: </b>'
-                                let b=j.nom
-                                let s=app.aSigns[j.is]
-                                let h=j.ih
-                                let deg=j.gdec
-                                str+=b+' en '+s+' en Casa '+h
-                                txt1.text='<b>'+parseInt(index+1)+'</b> '+str
-                            }else{
-                                txt1.text='<b>'+parseInt(index+1)+'</b> Casa '+j.house//+' e:'+e
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        Rectangle{
-            width: app.width/3
-            height: app.height
-            color: 'transparent'
-            border.width: 2
-            border.color: app.c2
-            Flickable{
-                id: flk1
-                contentWidth: parent.width
-                contentHeight: ta1.contentHeight+app.fs*3
-                anchors.fill: parent
-                TextArea{
-                    id: ta1
-                    width: parent.width
-                    height: contentHeight+app.fs
-                    color: app.c2
-                    font.pixelSize: app.fs*0.5
-                    wrapMode: TextArea.WordWrap
-                    onTextChanged: flk1.contentY=flk1.contentHeight-flk1.height
                 }
             }
         }
@@ -282,13 +327,11 @@ ApplicationWindow{
             app.uBodiesDataList+=jbodie.nom+' en '+app.aSigns[jbodie.is]+' en casa '+jbodie.ih+',\n'
         }
         let j={}
-        j.house=1
-        lm.append(lm.addItem(j, 0, 0))
-        j.house=2
-        lm.append(lm.addItem(j, 0, 0))
-        j.house=6
-        lm.append(lm.addItem(j, 0, 0))
-        //lm.append(lm.addItem(j, 0, 0))
+        for(i=1;i<=12;i++){
+            j.house=i
+            lm.append(lm.addItem(j, 0, 0))
+        }
+
         //tCheck.start()
         mkAspsRequest()
     }
@@ -371,7 +414,7 @@ ApplicationWindow{
             footData+='</body></html>'
             unik.setFile(folder+'/foot.html', footData)
             mkAllFilesToOne()
-            sendMessage('Se terminó de crear la carta de '+app.cNom)
+            if(apps.sendPurpose)sendMessage('Se terminó de crear la carta de '+app.cNom)
         }
     }
     function prepareRequest(index){
@@ -460,8 +503,19 @@ ApplicationWindow{
         let folder=unik.getPath(3)+'/astromaker/'+app.cNom
         aFileList.push(folder+'/head.html')
 
+
+        let numHouse=-1
+        let fileName
+        let filePath
+        for(var i=1;i<=12;i++){
+            numHouse=i
+            fileName='inter_house_'+numHouse+'.html'
+            filePath=folder+'/'+fileName
+            aFileList.push(filePath)
+        }
+
         //Contexto de Aspectos de Casa 1
-        let numHouse=1
+        /*let numHouse=1
         let fileName='inter_house_'+numHouse+'.html'
         let filePath=folder+'/'+fileName
         aFileList.push(filePath)
@@ -476,9 +530,9 @@ ApplicationWindow{
         numHouse=6
         fileName='inter_house_'+numHouse+'.html'
         filePath=folder+'/'+fileName
-        aFileList.push(filePath)
+        aFileList.push(filePath)*/
 
-        for(var i=0;i<lm.count-1;i++){
+        for(i=0;i<lm.count-1;i++){
             let j=lm.get(i).j
             let b=j.nom
             let s=app.aSigns[j.is]
@@ -658,14 +712,42 @@ ApplicationWindow{
         let s=''
         s+='Te hago una consulta astrológica. Te enviaré una lista de cuerpos astrológicos con sus respectivos aspectos en relación con otros cuerpos. '
         if(h===1){
-            s+='En el contexto de casa 1, quiero que me interpretes cómo se pueden manifestar positiva y negativamente. Dime 5 maneras positivas y 5 maneras negativas. Necesito saber cómo se podrían manifestar los siguientes cuerpos astrológicos en el plano de la personalidad, el yo, lo que se muestra desde la esencia particular hacia los demás, el yo físico, qué impronta dejamos como impresión a los demás y según nuestro signo ascendente de esta casa 1, en qué area de nuestra vida nos repercute. Además otros tipos de areas de la vida que tu sepas que están relacionados con la casa 1. Pueden ser manera de presentarse, de avanzar e tipos de impulsos. '
+            s+='En el contexto de casa 1, quiero que me interpretes cómo se pueden manifestar positiva y negativamente. Dime 5 maneras positivas y 5 maneras negativas. Necesito saber cómo se podrían manifestar los siguientes cuerpos astrológicos en el plano de la personalidad, el yo, lo que se muestra desde la esencia particular hacia los demás, el yo físico, qué impronta dejamos como impresión a los demás y según nuestro signo ascendente de esta casa 1, en qué area de nuestra vida nos repercute. Además otros tipos de areas de la vida que tu sepas que están relacionados con la casa 1 como ser contexto de nacimiento, momento del parto o inicio de nuestros primeros años de vida. Pueden ser manera de presentarse, de avanzar e tipos de impulsos. '
         }
         if(h===2){
             s+='En el contexto de casa 2, quiero que me interpretes cómo se pueden manifestar positiva y negativamente. Dime 5 maneras positivas y 5 maneras negativas. Necesito saber cómo se podrían manifestar los siguientes cuerpos astrológicos en el plano de la materialización de nuestros deseos, sueños, cómo expresaremos nuestra voluntad, con qué tipo e intensidad nos apegaremos y a qué cosas de qué tipo, asuntos relacionados con nuestra capacidad de materializar y lograr las cosas y los asuntos relacionados con el dinero, recursos, conexión e interacción con el confort, el medio ambiente, la naturaleza, el arte y los placeres de la vida. '
         }
-        if(h===6){
-            s+='En el contexto de casa 6, quiero que me interpretes cómo se pueden manifestar positiva y negativamente. Dime 5 maneras positivas y 5 maneras negativas. Necesito saber cómo se podrían manifestar los siguientes cuerpos astrológicos en el plano laboral, las rutinas y la salud. Además otros tipos de areas de la vida que tu sepas que están relacionados con la casa 6. Pueden ser mascotas, higiene, practicidad etc. '
+        if(h===3){
+            s+='En el contexto de casa 3, quiero que me interpretes cómo se pueden manifestar positiva y negativamente. Dime 5 maneras positivas y 5 maneras negativas. Necesito saber cómo se podrían manifestar los siguientes cuerpos astrológicos en el plano de la comunicación, tipo de entorno cercano y tipo de interacción con el mismo o tipos de medios de transporte o tipos de frecuencias y/o distancias. Maneras y características de la expresividad, tipo de dinámica mental, modos de moverse en el entorno cercano, el acceso a la información, los diálogos, el aprendizaje, el conocimiento y la educación. '
         }
+        if(h===4){
+            s+='En el contexto de casa 4, quiero que me interpretes cómo se pueden manifestar positiva y negativamente. Dime 5 maneras positivas y 5 maneras negativas. Necesito saber cómo se podrían manifestar los siguientes cuerpos astrológicos en el plano del hogar, la infancia, la tradición familiar, la conexión con las raíces del árbol genealógico, la madre o los abuelos, del sitio o lugar del desarrollo de la infancia, del nido de donde se viene, la conexión con la historia, con el pasado, los recuerdos, la nostalgia, tipo de emocionalidad y/o inestabilidad emocional. '
+        }
+        if(h===5){
+            s+='En el contexto de casa 5, quiero que me interpretes cómo se pueden manifestar positiva y negativamente. Dime 5 maneras positivas y 5 maneras negativas. Necesito saber cómo se podrían manifestar los siguientes cuerpos astrológicos en el plano de la identidad, el ego, la expresividad de la esencia interior, la creatividad, el deseo y las posibilidades de crear y/o procrear, tener hijos y el tipo de vínculo con ellos. Características o salud del auto estima y la capacidad de aportar al juego del amor, del romance y jugar con los hijos, sobrinos, mascotas o la capacidad de liderar en general. Las características que permitan o no ocupar un lugar en el centro de la escena en distintas etapas de la vida. '
+        }
+        if(h===6){
+            s+='En el contexto de casa 6, quiero que me interpretes cómo se pueden manifestar positiva y negativamente. Dime 5 maneras positivas y 5 maneras negativas. Necesito saber cómo se podrían manifestar los siguientes cuerpos astrológicos en el plano laboral, las rutinas y la salud. Además otros tipos de areas de la vida que tu sepas que están relacionados con la casa 6. Capacidad de poner los pies sobre la tierra, ser prácticos y ordenas las cosas de la vida. Pueden ser mascotas, higiene, practicidad etc. '
+        }
+        if(h===7){
+            s+='En el contexto de casa 7, quiero que me interpretes cómo se pueden manifestar positiva y negativamente. Dime 5 maneras positivas y 5 maneras negativas. Necesito saber cómo se podrían manifestar los siguientes cuerpos astrológicos en el plano de las relaciones familiares más importantes, las relaciones de pareja, el matrimonio, los tipos de noviazgos, los tipos de socios, la relación con los demás en general. Desde el punto de vista psicológico, qué tipo de lección o prueba se debe entender si tomamos a la casa 7 como un espejo que nos devuelve lo que vemos en los demás y no somos capaces de ver de nosotros mismos. '
+        }
+        if(h===8){
+            s+='En el contexto de casa 8, quiero que me interpretes cómo se pueden manifestar positiva y negativamente. Dime 5 maneras positivas y 5 maneras negativas. Necesito saber cómo se podrían manifestar los siguientes cuerpos astrológicos en el plano de lo oculto, lo misterioso, el tipo de interacción y dominio de todas las energía no materiales que mueven el mundo. Como ser el amor, la confianza, la manipulación, los secretos, deseos, sueños, control, pocesividad, sexo, dinero y asuntos tabú. Lo que involucra los asuntos de herencias, contabilidad, gestion, administración o control de recursos ajenos. El desapejo y la profundidad psicológica en lo profundo de la psique y lo emocional. '
+        }
+        if(h===9){
+            s+='En el contexto de casa 9, quiero que me interpretes cómo se pueden manifestar positiva y negativamente. Dime 5 maneras positivas y 5 maneras negativas. Necesito saber cómo se podrían manifestar los siguientes cuerpos astrológicos en el plano del sistema de creencias, la filosofía de vida, los asuntos relacionados con la sabiduría, los maestros, los asuntos sociales, religiosos, la historia, la filosofía y los viajes. La relación con el extranjero, las culturas diferentes, la capacidad de elevar o expandir el nivel de consciencia, los estudios superiores o el desarrollo espiritual. El tipo de sed o impulsos sexuales, el tipo de respeto a los compromisos, las promesas y el tipo de necesidad de expandir la energía propia en forma de amor visto como infidelidad o engaño. '
+        }
+        if(h===10){
+            s+='En el contexto de casa 10, quiero que me interpretes cómo se pueden manifestar positiva y negativamente. Dime 5 maneras positivas y 5 maneras negativas. Necesito saber cómo se podrían manifestar los siguientes cuerpos astrológicos en el plano profesional, la etapa o status más alto y pleno de nuestra vida. Los asuntos relacionados con el trabajo, el poder de mando o los gobiernos, el Estado o las fuerzas de seguridad, el tipo de relación con los jefes, padres o la autoridad en general. Los asuntos relacionados con las normas, reglas, capacidad de crear reglas y castigos, de aceptar reglas e incluso probabilidades de ser castigados o expuestos visible y públicamente. Tipo de firemeza para estructurar la vida, saliendo del hogar y afrontando el desafío de lograr los objetivos más altos que nos plantea la vida. '
+        }
+        if(h===11){
+            s+='En el contexto de casa 11, quiero que me interpretes cómo se pueden manifestar positiva y negativamente. Dime 5 maneras positivas y 5 maneras negativas. Necesito saber cómo se podrían manifestar los siguientes cuerpos astrológicos en el plano de las relaciones con los grupos en donde nuestro ego o esencia interior en lo particular se vincula entre otros. Los tipos de amigos y el valor que se le dá a la amistad. La capacidad de participar, involucrarse y ser parte de algo comunitario. Las propias características de la búsqueda del cambio en especial el que volcamos hacia los grupos, nuestra capacidad de aportar a los grupos, organizaciones, fundaciones, entornos religiosos, sociales o políticos. Asuntos relacionados con la capacidad de actualización, de actualizar el chip mental, la capacidad de tener buenas y nuevas ideas, revolucionarias, que aportan solución por contar con una visión global, elevada y futurista o avanzada a los tiempos. La sed de libertad en especial en cuanto a la expresión. '
+        }
+        if(h===12){
+            s+='En el contexto de casa 12, quiero que me interpretes cómo se pueden manifestar positiva y negativamente. Dime 5 maneras positivas y 5 maneras negativas. Necesito saber cómo se podrían manifestar los siguientes cuerpos astrológicos en el plano de la espiritualidad, la mente oculta, el inconsciente, toda la parte de nuestro ser que esconde nuestra caótica e incomprensible conexión con el inconsciente colectivo, nuestro árbol genealógico, lo que vivimos en el vientre materno. Asuntos relacionados con el desarrollo espiritual, nuestro camino hacia el interior, nuestra capacidad de sentir, presentir o intuir cosas del más allá o que no se perciben con los 5 sentidos. Nuestra parte metafísica. Toda nuestra perte caótica que no podemos ver ni conocer y a veces nos lleva a un naufragio en algunas areas de la vida. '
+        }
+
         let houseIs=app.uFullParams.ph['h'+h].is
         let strCuspide='La cúspide de la casa '+h+' está en el signo '+app.aSigns[houseIs]+'. '
 
@@ -790,11 +872,6 @@ ApplicationWindow{
                 }else{
                     strListOrNotList+=''+(' '+linesBodieList[i]).replace(',', ';')+'\n'
                 }
-                /*if(linesBodieList.length!==i){
-                    strListOrNotList+=linesBodieList[i]+'\n'
-                }else{
-                    strListOrNotList+=' y '+linesBodieList[i]+'.\n'
-                }*/
                 cantBodiesListInHouse++
             }
         }
@@ -816,6 +893,11 @@ ApplicationWindow{
                     s+=lines[i2]+';\n'
                 }
             }
+        }
+        if(apps.desTec){
+            s+='\nEn la medida de lo posible, en cada explicación, aclara y detalla el aspecto en cuestión que provoca la manifestación descripta en cada item de tu respuesta.'
+        }else{
+            s+='\nNo incluyas en cada explicación el aspecto en cuestión ni los detalles técnicos del mismo que provoca la manifestación descripta en cada item de tu respuesta.'
         }
         s+='\nLa respuesta la quiero en formato html tipo lista, en párrafos de 2 o 3 oraciones. No quiero que me expliques nada extra antes o despues de los datos requeridos.'
         return s
