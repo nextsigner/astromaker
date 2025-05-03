@@ -1,1 +1,1 @@
-Se agregan consultas sobre casas 1 y 2
+Se agregan los criterios de consulta para el planeta regente de la cúspide de la casa requerida en getConsHouse(h)

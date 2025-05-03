@@ -648,7 +648,108 @@ ApplicationWindow{
             s+='En el contexto de casa 6, quiero que me interpretes cómo se pueden manifestar positiva y negativamente. Dime 5 maneras positivas y 5 maneras negativas. Necesito saber cómo se podrían manifestar los siguientes cuerpos astrológicos en el plano laboral, las rutinas y la salud. Además otros tipos de areas de la vida que tu sepas que están relacionados con la casa 6. Pueden ser mascotas, higiene, practicidad etc. '
         }
         let houseIs=app.uFullParams.ph['h'+h].is
-        let strCuspide='La cúspide de la casa '+h+' está en el signo '+app.aSigns[houseIs]+'.\n'
+        let strCuspide='La cúspide de la casa '+h+' está en el signo '+app.aSigns[houseIs]+'. '
+
+        let bCuspSign=-1
+        let bCuspDeg=0.0
+        let bCuspHouse=-1
+        let bReg
+
+        //Aries
+        if(houseIs===app.aSigns.indexOf('Aries')){
+            bReg=app.uFullParams.pc['c'+app.aBodies.indexOf('Marte')]
+            bCuspSign=app.aSigns[bReg.is]
+            bCuspDeg=parseFloat(bReg.gdec).toFixed(4)
+            bCuspHouse=bReg.ih
+            strCuspide+='Ten en cuenta que el regente de Aries, Marte, en esta carta natal se encuentra en el signo '+bCuspSign+' en el °'+bCuspDeg+' de la casa '+bCuspHouse+'. '
+        }
+        //Tauro y Libra
+        if(houseIs===app.aSigns.indexOf('Tauro') || houseIs===app.aSigns.indexOf('Libra')){
+            let sc=houseIs===1?'Tauro':'Libra'
+            bReg=app.uFullParams.pc['c'+app.aBodies.indexOf('Venus')]
+            bCuspSign=app.aSigns[bReg.is]
+            bCuspDeg=parseFloat(bReg.gdec).toFixed(4)
+            bCuspHouse=bReg.ih
+            strCuspide+='Ten en cuenta que el regente de '+sc+', Venus, en esta carta natal se encuentra en el signo '+bCuspSign+' en el °'+bCuspDeg+' de la casa '+bCuspHouse+'. '
+        }
+        //Géminis y Virgo
+        if(houseIs===app.aSigns.indexOf('Géminis') || houseIs===app.aSigns.indexOf('Virgo')){
+            let sc=houseIs===2?'Géminis':'Virgo'
+            bReg=app.uFullParams.pc['c'+app.aBodies.indexOf('Mercurio')]
+            bCuspSign=app.aSigns[bReg.is]
+            bCuspDeg=parseFloat(bReg.gdec).toFixed(4)
+            bCuspHouse=bReg.ih
+            strCuspide+='Ten en cuenta que el regente de '+sc+', Mercurio, en esta carta natal se encuentra en el signo '+bCuspSign+' en el °'+bCuspDeg+' de la casa '+bCuspHouse+'. '
+        }
+        //Cáncer
+        if(houseIs===app.aSigns.indexOf('Cáncer')){
+            let sc='Cáncer'
+            bReg=app.uFullParams.pc['c'+app.aBodies.indexOf('Luna')]
+            bCuspSign=app.aSigns[bReg.is]
+            bCuspDeg=parseFloat(bReg.gdec).toFixed(4)
+            bCuspHouse=bReg.ih
+            strCuspide+='Ten en cuenta que el regente de '+sc+', Luna, en esta carta natal se encuentra en el signo '+bCuspSign+' en el °'+bCuspDeg+' de la casa '+bCuspHouse+'. '
+        }
+        //Leo
+        if(houseIs===app.aSigns.indexOf('Leo')){
+            let sc='Leo'
+            bReg=app.uFullParams.pc['c'+app.aBodies.indexOf('Sol')]
+            bCuspSign=app.aSigns[bReg.is]
+            bCuspDeg=parseFloat(bReg.gdec).toFixed(4)
+            bCuspHouse=bReg.ih
+            strCuspide+='Ten en cuenta que el regente de '+sc+', Sol, en esta carta natal se encuentra en el signo '+bCuspSign+' en el °'+bCuspDeg+' de la casa '+bCuspHouse+'. '
+        }
+        //Escorpio
+        if(houseIs===app.aSigns.indexOf('Escorpio')){
+            let sc='Escorpio'
+            bReg=app.uFullParams.pc['c'+app.aBodies.indexOf('Marte')]
+            bCuspSign=app.aSigns[bReg.is]
+            bCuspDeg=parseFloat(bReg.gdec).toFixed(4)
+            bCuspHouse=bReg.ih
+            strCuspide+='Ten en cuenta que el regente y co-regente de '+sc+', Marte y Plutón, en esta carta natal el planeta Marte se encuentra en el signo '+bCuspSign+' en el °'+bCuspDeg+' de la casa '+bCuspHouse+' '
+            bReg=app.uFullParams.pc['c'+app.aBodies.indexOf('Plutón')]
+            bCuspSign=app.aSigns[bReg.is]
+            bCuspDeg=parseFloat(bReg.gdec).toFixed(4)
+            bCuspHouse=bReg.ih
+            strCuspide+='y Plutón se encuentra en el signo '+bCuspSign+' en el °'+bCuspDeg+' de la casa '+bCuspHouse+'. '
+        }
+        //Sagitario
+        if(houseIs===app.aSigns.indexOf('Sagitario')){
+            let sc='Sagitario'
+            bReg=app.uFullParams.pc['c'+app.aBodies.indexOf('Júpiter')]
+            bCuspSign=app.aSigns[bReg.is]
+            bCuspDeg=parseFloat(bReg.gdec).toFixed(4)
+            bCuspHouse=bReg.ih
+            strCuspide+='Ten en cuenta que el regente de '+sc+', Júpiter, en esta carta natal se encuentra en el signo '+bCuspSign+' en el °'+bCuspDeg+' de la casa '+bCuspHouse+'. '
+        }
+        //Capricornio
+        if(houseIs===app.aSigns.indexOf('Capricornio')){
+            let sc='Capricornio'
+            bReg=app.uFullParams.pc['c'+app.aBodies.indexOf('Saturno')]
+            bCuspSign=app.aSigns[bReg.is]
+            bCuspDeg=parseFloat(bReg.gdec).toFixed(4)
+            bCuspHouse=bReg.ih
+            strCuspide+='Ten en cuenta que el regente de '+sc+', Saturno, en esta carta natal se encuentra en el signo '+bCuspSign+' en el °'+bCuspDeg+' de la casa '+bCuspHouse+'. '
+        }
+        //Acuario
+        if(houseIs===app.aSigns.indexOf('Acuario')){
+            let sc='Acuario'
+            bReg=app.uFullParams.pc['c'+app.aBodies.indexOf('Urano')]
+            bCuspSign=app.aSigns[bReg.is]
+            bCuspDeg=parseFloat(bReg.gdec).toFixed(4)
+            bCuspHouse=bReg.ih
+            strCuspide+='Ten en cuenta que el regente de '+sc+', Urano, en esta carta natal se encuentra en el signo '+bCuspSign+' en el °'+bCuspDeg+' de la casa '+bCuspHouse+'. '
+        }
+        //Piscis
+        if(houseIs===app.aSigns.indexOf('Piscis')){
+            let sc='Piscis'
+            bReg=app.uFullParams.pc['c'+app.aBodies.indexOf('Neptuno')]
+            bCuspSign=app.aSigns[bReg.is]
+            bCuspDeg=parseFloat(bReg.gdec).toFixed(4)
+            bCuspHouse=bReg.ih
+            strCuspide+='Ten en cuenta que el regente de '+sc+', Neptuno, en esta carta natal se encuentra en el signo '+bCuspSign+' en el °'+bCuspDeg+' de la casa '+bCuspHouse+'. '
+        }
+
         let aBodies=[]
         let strBodiesInHouse=''
         for(var i=0;i<app.aBodies.length;i++){
