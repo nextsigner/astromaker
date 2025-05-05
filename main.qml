@@ -45,6 +45,7 @@ ApplicationWindow{
         property bool enableDev: false
         property bool enableAutoCons: false
         property string uFilePath
+        property string gitHubHtmlRepUrl: '/home/ns/nsp/zool-html-files'
         property color backgroundColor: 'black'
         property color fontColor: 'white'
         property bool desTec: false
@@ -663,7 +664,7 @@ ApplicationWindow{
         c+='    }\n'
         c+='    Component.onCompleted:{\n'
         //c+='        console.log(\'zm.load() python3 "'+unik.currentFolderPath()+'/py/'+app.sweBodiesPythonFile+'" '+vd+' '+vm+' '+va+' '+vh+' '+vmin+' '+vgmt+' '+vlat+' '+vlon+' '+hsys+' '+unik.currentFolderPath()+' '+valt+'\')\n'
-        c+='        let cmd=\'python3 "'+unik.currentFolderPath()+'/mkArchivoFinal.py" "'+unik.getPath(3)+'/astromaker/Carta_Completa_de_'+app.cNom+'.html"  "'+aFileList.toString()+'" "'+aTitList.toString()+'"\'\n'
+        c+='        let cmd=\'python3 "'+unik.currentFolderPath()+'/mkArchivoFinal.py" "'+apps.gitHubHtmlRepUrl+'/Carta_Completa_de_'+app.cNom+'.html"  "'+aFileList.toString()+'" "'+aTitList.toString()+'"\'\n'
         c+='        run(cmd)\n'
         c+='        console.log(cmd)\n'
         //c+='        Qt.quit()\n'
