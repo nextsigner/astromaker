@@ -24,6 +24,7 @@ ApplicationWindow{
     property var uParams
     property var uFullParams
     property string uBodiesDataList: ''
+    property var uArrayBodiesTitList: []
     property string uAspsData: ''
 
     property var aSigns: ['Aries', 'Tauro', 'Géminis', 'Cáncer', 'Leo', 'Virgo', 'Libra', 'Escorpio', 'Sagitario', 'Capricornio', 'Acuario', 'Piscis']
@@ -161,6 +162,19 @@ ApplicationWindow{
             Row{
                 spacing: app.fs*0.5
                 anchors.centerIn: parent
+                Rectangle{
+                    width: parent.spacing*2
+                    height: width
+                    radius: width*0.5
+                    color: tCheck.running?'green':'red'
+                    anchors.verticalCenter: parent.verticalCenter
+                    MouseArea{
+                        anchors.fill: parent
+                        onClicked: {
+                            tCheck.running=!tCheck.running
+                        }
+                    }
+                }
                 Row{
                     spacing: app.fs*0.1
                     anchors.verticalCenter: parent.verticalCenter
@@ -318,13 +332,18 @@ ApplicationWindow{
     }
     function loadJson(jsonString){
         lm.clear()
+        app.uBodiesDataList=''
+        app.uArrayBodiesTitList=[]
         let json=JSON.parse(jsonString.replace(/\n/g, ''))
         app.uFullParams=json
+        let indexId=15
         for(var i=0;i<Object.keys(json.pc).length;i++){
             let jbodie=json.pc['c'+i]
             lm.append(lm.addItem(jbodie, 1, 0))
             lm.append(lm.addItem(jbodie, 0, 0))
             app.uBodiesDataList+=jbodie.nom+' en '+app.aSigns[jbodie.is]+' en casa '+jbodie.ih+',\n'
+            app.uArrayBodiesTitList.push('<h3 id="'+indexId+'">'+jbodie.nom+' en '+app.aSigns[jbodie.is]+' en casa '+jbodie.ih+'<h3>')
+            indexId++
         }
         let j={}
         for(i=1;i<=12;i++){
@@ -333,7 +352,12 @@ ApplicationWindow{
         }
 
         //tCheck.start()
-        mkAspsRequest()
+        let filePathAsps=unik.getPath(3)+'/astromaker/'+app.cNom+'/asps.html'
+        if(unik.fileExist(filePathAsps)){
+            app.uAspsData=unik.getFile(filePathAsps)
+        }else{
+            mkAspsRequest()
+        }
     }
 
     function check(){
@@ -409,6 +433,7 @@ ApplicationWindow{
             let headData=getHtmlHead()
             //ta1.text+=headData
             unik.setFile(folder+'/head.html', headData)
+            unik.setFile(folder+'/indice.html', getHtmlIndice())
             let footData=''
             footData+='<br><hr><br><h4>Creado por Ricardo Martín Pizarro - 2025</h4><h4>Whatsapp +54 9 1138024370</h4><hr><br>'
             footData+='</body></html>'
@@ -419,7 +444,7 @@ ApplicationWindow{
     }
     function prepareRequest(index){
         if(!tCheck.running)return ''
-        let cons=''
+        let cons='Por favor, genera el siguiente contenido estrictamente en formato HTML, sin incluir ningún texto o comentario adicional antes o después de la respuesta HTML. Por favor, genera únicamente el código HTML para una lista desordenada (<ul>) con los siguientes elementos como ítems de lista (<li>), sin incluir las etiquetas <html>, <head>, <body> ni ningún otro texto o comentario adicional antes o después del código solicitado. '
         let t=lm.get(index).t
         let strManPosONeg=''
         if(t===1){
@@ -431,7 +456,7 @@ ApplicationWindow{
         let b=j.nom
         let s=app.aSigns[j.is]
         let h=j.ih
-        cons+='Consulta sobre Astrología. Dime cómo se manifiestan en el plano astrológico, en este caso de manera '+strManPosONeg+', es decir, quiero que en tu respuesta me digas al menos 10 manifestaciones '+strManPosONeg+'s de '+b+' en el signo '+s+' en Casa '+h+'. El formato de tu respuesta debe ser la siguiente; En formato HTML, en 10 párrafos, que cada párrafo comience con el tipo de manifestación en negrita con 2 puntos, a modo de título introductorio y 2 o 3 oraciones explicándo la manifestación en cuentión. El listado de manifestaciones debe estar en el contexto de una lista HTML. No quiero explicación extra al inicio ni al pié. Explícaselo a una persona llamada '+app.cNom.replace(/_/g, '_')+' en segunda persona. No es necesario que utilices su nombre completo. Preferentemente utiliza su primer nombre. No es necesario que en la lista enumeres con un número entero.'
+        cons+='Consulta sobre Astrología. Dime cómo se manifiestan en el plano astrológico, en este caso de manera '+strManPosONeg+', es decir, quiero que en tu respuesta me digas al menos 10 manifestaciones '+strManPosONeg+'s de '+b+' en el signo '+s+' en Casa '+h+'. El formato de tu respuesta debe ser la siguiente; En formato HTML, en 10 párrafos, que cada párrafo comience con el tipo de manifestación en negrita con 2 puntos, a modo de título introductorio y 2 o 3 oraciones explicándo la manifestación en cuentión. El listado de manifestaciones debe estar en el contexto de una lista HTML. Solo incluye los tags html de la lista porque tu respuesta se incluirá dentro de un html globar que ya tendrá los tags html, head, title y body. No quiero explicación extra al inicio ni al pié. Explícaselo a una persona llamada '+app.cNom.replace(/_/g, '_')+' en segunda persona. No es necesario que utilices su nombre completo. Preferentemente utiliza su primer nombre. No es necesario que en la lista enumeres con un número entero, por ejemplo 1., 2., 3. en cambio debes decorar cada item de la lista con el punto redondo.  No incluyas datos o información por fuera o extra a las 2 listas de manifestaciones positivas y negativas.'
         return cons
     }
     function mkAIRequest(cons, filePath, itemIndex){
@@ -502,6 +527,7 @@ ApplicationWindow{
         let aFileList=[]
         let folder=unik.getPath(3)+'/astromaker/'+app.cNom
         aFileList.push(folder+'/head.html')
+        aFileList.push(folder+'/indice.html')
 
 
         let numHouse=-1
@@ -514,29 +540,15 @@ ApplicationWindow{
             aFileList.push(filePath)
         }
 
-        //Contexto de Aspectos de Casa 1
-        /*let numHouse=1
-        let fileName='inter_house_'+numHouse+'.html'
-        let filePath=folder+'/'+fileName
-        aFileList.push(filePath)
-
-        //Contexto de Aspectos de Casa 2
-        numHouse=2
-        fileName='inter_house_'+numHouse+'.html'
-        filePath=folder+'/'+fileName
-        aFileList.push(filePath)
-
-        //Contexto de Aspectos de Casa 6
-        numHouse=6
-        fileName='inter_house_'+numHouse+'.html'
-        filePath=folder+'/'+fileName
-        aFileList.push(filePath)*/
-
-        for(i=0;i<lm.count-1;i++){
+        for(i=0;i<lm.count-12;i++){
             let j=lm.get(i).j
+            //ta1.text+='\n\n'+JSON.stringify(j, null, 2)+'\n'
             let b=j.nom
             let s=app.aSigns[j.is]
             let h=j.ih
+            //ta1.text+='b: '+b+'\n'
+            //ta1.text+='s: '+s+'\n'
+            //ta1.text+='h: '+h+'\n\n'
             filePath=''
 
             let t=lm.get(i).t
@@ -548,10 +560,82 @@ ApplicationWindow{
                 fileName='neg_'+b+'_'+s+'_'+h+'.html'
                 filePath=folder+'/'+fileName
             }
+            ta1.text+='fp: '+filePath+'\n'
             aFileList.push(filePath)
         }
         aFileList.push(folder+'/foot.html')
         return aFileList
+    }
+    function getHtmlIndice(){
+        let a = getArrayTits()
+        var s=''
+        s+='\n<h2 id="0">Índice</h2>'
+        s+='<h3>Las 12 Casas Astrológicas</h3>\n'
+        s+='<p><b>Nota: </b>Este índice te permite ir a conocer las interpretaciones astrológicas casa por casa para conocer de qué modo se manifestarán los astros en cada área de tu vida como ser trabajo, relaciones, economía, infancia y diferentes partes de tu personalidad y de tu vida en general.</p>\n'
+        s+='<ul>'
+        for(var i=2;i<12+2;i++){
+            s+='<li><a href="#'+parseInt(i)+'" style="color: #ff8833;"><b>Casa '+parseInt(i-1)+':</b></a> <p>'+htmlToText(a[i])+'</p></li>\n'
+        }
+        s+='</ul>\n'
+
+        s+='<hr>\n'
+
+        s+='<h2>Los planetas y cuerpos astrológicos</h2>\n'
+        s+='<p><b>Nota: </b>Este índice te permite ir a conocer las interpretaciones astrológicas de cada planeta o cuerpo en cada signo y casa.</p>\n'
+
+        s+='<ul>\n'
+
+        let posWrited=false
+        let indexNoRepeat=0;
+        for(i=0;i<lm.count-12;i++){
+            if(!posWrited){
+                let j=lm.get(i).j
+                let b=j.nom
+                let sign=app.aSigns[j.is]
+                let h=j.ih
+                s+='<li><a href="#'+parseInt(indexNoRepeat+14+1)+'" style="color: #ff8833;">'+b+' '+sign+' en Casa '+h+'</a></li><br>\n'
+                posWrited=true
+                indexNoRepeat++
+                continue
+            }
+            posWrited=false
+        }
+        s+='</ul>\n'
+        return s
+    }
+    function getArrayHtmlTits(){
+        let a = getArrayTits()
+
+        for(var i=0;i<app.uArrayBodiesTitList.length;i++){
+            a.push(app.uArrayBodiesTitList[i]+'<h4>Manifestaciones Positivas</h4>')
+            a.push('<h4>Manifestaciones Negativas</h4>')
+        }
+        a.push("<!-- Tit Foot -->")
+        let ac=a
+        a=[]
+        for(i=0;i<ac.length;i++){
+            a.push(ac[i].replace(/,/g, '@'))
+        }
+
+        return a
+    }
+    function getArrayTits(){
+        let a=[]
+        a.push('<!-- Tit Head -->')
+        a.push('<!-- Tit indice -->')
+        a.push('<h3 id="2">Personalidad e impresión hacia los demás</h3>')
+        a.push('<h3 id="3">Capacidad de Materializar, recursos, economía, interacción con la naturaleza, belleza y disfrute de la vida</h3>')
+        a.push('<h3 id="4">Maneras de expresarse, dialogar, comunicarse, tipo de entorno cercano y modos de ralcionarse, moverse o interactual con el</h3>')
+        a.push('<h3 id="5">Tipo de hogar en el que habitas, nido donde te criaste en la infancia, recuerdos y relación con el pasado, la familia, la madre, abuelos o tipos de emociones</h3>')
+        a.push('<h3 id="6">Asuntos relacionados con el ego, el auto estima, la identidad, la expresividad, la creatividad, los hijos, el juego, los tipos de romances, las maneras de brillar o ponerse en el centro de la escena</h3>')
+        a.push('<h3 id="7">Ámbito laboral, rutinas y salud</h3>')
+        a.push('<h3 id="8">Relaciones familiares o importantes, pareja, matrimonio, socios o tipo de relacion con respecto a los demás en general en especial lo que vemos en los demás que nos cuesta ver en nosotros mismos</h3>')
+        a.push('<h3 id="9">Asuntos de nuestra vida relacionados con lo oculto, lo que ocultamos, asuntos relacionados con temas tabú, sexo, poder, control, administración, gestión de recursos ajenos o incluso coas de las que podríamos desapegarnos</h3>')
+        a.push('<h3 id="10">Asuntos relacionados con los sistemas de creencias, la manera de creer, aprender, expandir la consciencia, las filosofías de vida, los estudios superiores, el acercamiento a la sabiduría, tipo de relación con los maestros, la capacidad de guiar, viajar y esparcir nuestra energía hacia los demás</h3>')
+        a.push('<h3 id="11">Asuntos relacionados con la profesión, el trabajo, la relacion con el poder, el gobierno, los jefes y la autoridad en general, la etapa más alta de nuestra vida, nuestros máximos logros y exposición pública</h3>')
+        a.push('<h3 id="12">Modos y maneras de relacionarse con los grupos, amistades y organizaciones en donde se podría participar involucrando el ego en un entorno rodeado de otros egos, la integración en donde ir a llevar cambios, libertad, aportar soluciones o ideas para actualizar y mejorar las cosas hacia el futuro</h3>')
+        a.push('<h3 id="13">Asuntos relacionados con el desarrollo espiritual, el ser interior, nuestra zona cótica y desconocida, la mente oculta, el inconsciente, lo que vivimos en el vientre materno, la conexión con el árbol genealógico o el más allá</h3>')
+        return a
     }
     function deleteAll(){
         let fileList=getFileList()
@@ -564,6 +648,7 @@ ApplicationWindow{
     }
     function mkAllFilesToOne(){
         let aFileList=getFileList()
+        let aTitList=getArrayHtmlTits()
         let d = new Date(Date.now())
         let ms=d.getTime()
         let c='import QtQuick 2.0\n'
@@ -574,11 +659,13 @@ ApplicationWindow{
         c+='        ta1.text+=logData\n'
         c+='        let m0=logData.split("Url de Carta: ")\n'
         c+='        Qt.openUrlExternally(m0[1].replace(/\\n/g, \'\'))\n'
-        c+='        uqp'+ms+'.destroy(3000)\n'
+        c+='        uqp'+ms+'.destroy(15000)\n'
         c+='    }\n'
         c+='    Component.onCompleted:{\n'
         //c+='        console.log(\'zm.load() python3 "'+unik.currentFolderPath()+'/py/'+app.sweBodiesPythonFile+'" '+vd+' '+vm+' '+va+' '+vh+' '+vmin+' '+vgmt+' '+vlat+' '+vlon+' '+hsys+' '+unik.currentFolderPath()+' '+valt+'\')\n'
-        c+='        run(\'python3 "'+unik.currentFolderPath()+'/mkArchivoFinal.py" "'+unik.getPath(3)+'/astromaker/Carta_Completa_de_'+app.cNom+'.html"  "'+aFileList.toString()+'"\')\n'
+        c+='        let cmd=\'python3 "'+unik.currentFolderPath()+'/mkArchivoFinal.py" "'+unik.getPath(3)+'/astromaker/Carta_Completa_de_'+app.cNom+'.html"  "'+aFileList.toString()+'" "'+aTitList.toString()+'"\'\n'
+        c+='        run(cmd)\n'
+        c+='        console.log(cmd)\n'
         //c+='        Qt.quit()\n'
         c+='    }\n'
         c+='}\n'
@@ -596,6 +683,7 @@ ApplicationWindow{
         //c+='        ta1.text+=logData\n'
         c+='        ta1.text+="\\nSe obtuvieron los aspectos.\\n"\n'
         c+='        app.uAspsData=logData\n'
+        c+='        unik.setFile(unik.getPath(3)+\'/astromaker/\'+app.cNom+\'/asps.html\',logData)\n'
         c+='        tCheck.start()\n'
         c+='        uqp'+ms+'.destroy(3000)\n'
         c+='    }\n'
@@ -698,10 +786,10 @@ ApplicationWindow{
         xhr.send(params);
     }
     function getAspCons(){
-        let s=''
+        let s='Por favor, genera el siguiente contenido estrictamente en formato de texto plano, sin incluir ningún texto o comentario adicional antes o después de la respuesta.'
         s+='Te enviaré una lista de cuerpos astrológicos.\n'
         s+='En esta lista están los grados. En base a estos grados, quiero de que retornes como respuesta una lista con los aspectos tales como conjunción, oposición, cuadratura, sextil, trígono y quincuncio.\n'
-        s+='No quiero que me respondas con ninguna explicación extra. Respondeme en formato de texto plano. En cada renglon quiero por ejemplo: Sol conjunción Marte, en otra línea, Sol cuadratura Luna.\nAqui tienes la lista.\n\n'
+        s+='No quiero que me respondas con ninguna otra explicación extra. Respondeme en formato de texto plano. En cada renglon quiero por ejemplo: Sol conjunción Marte, en otra línea, Sol cuadratura Luna.\nAqui tienes la lista.\n\n'
         for(var i=0;i<app.aBodies.length;i++){
             let bd=app.uFullParams.pc['c'+i]
             s+=''+bd.nom+' °'+parseFloat(bd.gdec).toFixed(2)+'\n'
@@ -709,7 +797,7 @@ ApplicationWindow{
         return s.replace(/\\/g, '\\\\')
     }
     function getConsHouse(h){
-        let s=''
+        let s='Por favor, genera el siguiente contenido estrictamente en formato HTML, sin incluir ningún texto o comentario adicional antes o después de la respuesta HTML. Por favor, genera únicamente el código HTML para una lista desordenada (<ul>) con los siguientes elementos como ítems de lista (<li>), sin incluir las etiquetas <html>, <head>, <body> ni ningún otro texto o comentario adicional antes o después del código solicitado. '
         s+='Te hago una consulta astrológica. Te enviaré una lista de cuerpos astrológicos con sus respectivos aspectos en relación con otros cuerpos. '
         if(h===1){
             s+='En el contexto de casa 1, quiero que me interpretes cómo se pueden manifestar positiva y negativamente. Dime 5 maneras positivas y 5 maneras negativas. Necesito saber cómo se podrían manifestar los siguientes cuerpos astrológicos en el plano de la personalidad, el yo, lo que se muestra desde la esencia particular hacia los demás, el yo físico, qué impronta dejamos como impresión a los demás y según nuestro signo ascendente de esta casa 1, en qué area de nuestra vida nos repercute. Además otros tipos de areas de la vida que tu sepas que están relacionados con la casa 1 como ser contexto de nacimiento, momento del parto o inicio de nuestros primeros años de vida. Pueden ser manera de presentarse, de avanzar e tipos de impulsos. '
@@ -899,8 +987,16 @@ ApplicationWindow{
         }else{
             s+='\nNo incluyas en cada explicación el aspecto en cuestión ni los detalles técnicos del mismo que provoca la manifestación descripta en cada item de tu respuesta.'
         }
-        s+='\nLa respuesta la quiero en formato html tipo lista, en párrafos de 2 o 3 oraciones. No quiero que me expliques nada extra antes o despues de los datos requeridos.'
+        s+='\nLa respuesta la quiero en formato html tipo lista, en párrafos de 2 o 3 oraciones.  Solo incluye los tags html de la lista porque tu respuesta se incluirá dentro de un html globar que ya tendrá los tags html, head, title y body. No quiero que cada lista esté enumerada con el estilo de números tipo 1., 2., 3., en cambio quiero que solo se decoren los items de la lista con el punto redondo. En la parte superior de la lista por dentro del tag <h4> los subtítulos "Manifestaciones Positivas" o "Manifestaciones Negativas" según correspondan. No quiero que me expliques nada extra antes o despues de los datos requeridos. No incluyas datos o información por fuera o extra a las 2 listas de manifestaciones positivas y negativas.'
         return s
     }
-
+    function htmlToText(htmlString) {
+      const h3Regex = /<h3[^>]*>(.*?)<\/h3>/i;
+      const match = htmlString.match(h3Regex);
+      if (match && match[1]) {
+        return match[1];
+      } else {
+        return "";
+      }
+    }
 }

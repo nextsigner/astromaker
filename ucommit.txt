@@ -1,1 +1,1 @@
-Se prueban integrar los aspectos de las 12 casas
+Se agrega indice html
