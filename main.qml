@@ -591,7 +591,10 @@ ApplicationWindow{
         s+='<p><b>Nota: </b>Este índice te permite ir a conocer las interpretaciones astrológicas casa por casa para conocer de qué modo se manifestarán los astros en cada área de tu vida como ser trabajo, relaciones, economía, infancia y diferentes partes de tu personalidad y de tu vida en general.</p>\n'
         s+='<ul>'
         for(var i=2;i<12+2;i++){
-            s+='<li><a href="#'+parseInt(i)+'" style="color: #ff8833;"><b>Casa '+parseInt(i-1)+':</b></a> <p>'+htmlToText(a[i])+'</p></li>\n'
+            var t0=htmlToText(a[i]).replace('CASA 1:', '').replace('CASA 2:', '').replace('CASA 3:', '').replace('CASA 4:', '').replace('CASA 5:', '').replace('CASA 6:', '').replace('CASA 7:', '').replace('CASA 8:', '').replace('CASA 9:', '').replace('CASA 10:', '').replace('CASA 11:', '').replace('CASA 12:', '')
+            s+='<li><a href="#'+parseInt(i)+'" style="color: #ff8833;"><b>Casa '+parseInt(i-1)+':</b></a> <p>'+t0+'</p></li>\n'
+
+
         }
         s+='</ul>\n'
 
@@ -640,18 +643,18 @@ ApplicationWindow{
         let a=[]
         a.push('<!-- Tit Head -->')
         a.push('<!-- Tit indice -->')
-        a.push('<h3 id="2">Personalidad e impresión hacia los demás</h3>')
-        a.push('<h3 id="3">Capacidad de Materializar, recursos, economía, interacción con la naturaleza, belleza y disfrute de la vida</h3>')
-        a.push('<h3 id="4">Maneras de expresarse, dialogar, comunicarse, tipo de entorno cercano y modos de ralcionarse, moverse o interactual con el</h3>')
-        a.push('<h3 id="5">Tipo de hogar en el que habitas, nido donde te criaste en la infancia, recuerdos y relación con el pasado, la familia, la madre, abuelos o tipos de emociones</h3>')
-        a.push('<h3 id="6">Asuntos relacionados con el ego, el auto estima, la identidad, la expresividad, la creatividad, los hijos, el juego, los tipos de romances, las maneras de brillar o ponerse en el centro de la escena</h3>')
-        a.push('<h3 id="7">Ámbito laboral, rutinas y salud</h3>')
-        a.push('<h3 id="8">Relaciones familiares o importantes, pareja, matrimonio, socios o tipo de relacion con respecto a los demás en general en especial lo que vemos en los demás que nos cuesta ver en nosotros mismos</h3>')
-        a.push('<h3 id="9">Asuntos de nuestra vida relacionados con lo oculto, lo que ocultamos, asuntos relacionados con temas tabú, sexo, poder, control, administración, gestión de recursos ajenos o incluso coas de las que podríamos desapegarnos</h3>')
-        a.push('<h3 id="10">Asuntos relacionados con los sistemas de creencias, la manera de creer, aprender, expandir la consciencia, las filosofías de vida, los estudios superiores, el acercamiento a la sabiduría, tipo de relación con los maestros, la capacidad de guiar, viajar y esparcir nuestra energía hacia los demás</h3>')
-        a.push('<h3 id="11">Asuntos relacionados con la profesión, el trabajo, la relacion con el poder, el gobierno, los jefes y la autoridad en general, la etapa más alta de nuestra vida, nuestros máximos logros y exposición pública</h3>')
-        a.push('<h3 id="12">Modos y maneras de relacionarse con los grupos, amistades y organizaciones en donde se podría participar involucrando el ego en un entorno rodeado de otros egos, la integración en donde ir a llevar cambios, libertad, aportar soluciones o ideas para actualizar y mejorar las cosas hacia el futuro</h3>')
-        a.push('<h3 id="13">Asuntos relacionados con el desarrollo espiritual, el ser interior, nuestra zona cótica y desconocida, la mente oculta, el inconsciente, lo que vivimos en el vientre materno, la conexión con el árbol genealógico o el más allá</h3>')
+        a.push('<h3 id="2">CASA 1'+getHouseTipoData(1)+': Personalidad e impresión hacia los demás</h3>')
+        a.push('<h3 id="3">CASA 2'+getHouseTipoData(2)+': Capacidad de Materializar, recursos, economía, interacción con la naturaleza, belleza y disfrute de la vida</h3>')
+        a.push('<h3 id="4">CASA 3'+getHouseTipoData(3)+': Maneras de expresarse, dialogar, comunicarse, tipo de entorno cercano y modos de ralcionarse, moverse o interactual con el</h3>')
+        a.push('<h3 id="5">CASA 4'+getHouseTipoData(4)+': Tipo de hogar en el que habitas, nido donde te criaste en la infancia, recuerdos y relación con el pasado, la familia, la madre, abuelos o tipos de emociones</h3>')
+        a.push('<h3 id="6">CASA 5'+getHouseTipoData(5)+': Asuntos relacionados con el ego, el auto estima, la identidad, la expresividad, la creatividad, los hijos, el juego, los tipos de romances, las maneras de brillar o ponerse en el centro de la escena</h3>')
+        a.push('<h3 id="7">CASA 6'+getHouseTipoData(6)+': Ámbito laboral, rutinas y salud</h3>')
+        a.push('<h3 id="8">CASA 7'+getHouseTipoData(7)+': Relaciones familiares o importantes, pareja, matrimonio, socios o tipo de relacion con respecto a los demás en general en especial lo que vemos en los demás que nos cuesta ver en nosotros mismos</h3>')
+        a.push('<h3 id="9">CASA 8'+getHouseTipoData(8)+': Asuntos de nuestra vida relacionados con lo oculto, lo que ocultamos, asuntos relacionados con temas tabú, sexo, poder, control, administración, gestión de recursos ajenos o incluso coas de las que podríamos desapegarnos</h3>')
+        a.push('<h3 id="10">CASA 9'+getHouseTipoData(9)+': Asuntos relacionados con los sistemas de creencias, la manera de creer, aprender, expandir la consciencia, las filosofías de vida, los estudios superiores, el acercamiento a la sabiduría, tipo de relación con los maestros, la capacidad de guiar, viajar y esparcir nuestra energía hacia los demás</h3>')
+        a.push('<h3 id="11">CASA 10'+getHouseTipoData(10)+': Asuntos relacionados con la profesión, el trabajo, la relacion con el poder, el gobierno, los jefes y la autoridad en general, la etapa más alta de nuestra vida, nuestros máximos logros y exposición pública</h3>')
+        a.push('<h3 id="12">CASA 11'+getHouseTipoData(11)+': Modos y maneras de relacionarse con los grupos, amistades y organizaciones en donde se podría participar involucrando el ego en un entorno rodeado de otros egos, la integración en donde ir a llevar cambios, libertad, aportar soluciones o ideas para actualizar y mejorar las cosas hacia el futuro</h3>')
+        a.push('<h3 id="13">CASA 12'+getHouseTipoData(12)+': Asuntos relacionados con el desarrollo espiritual, el ser interior, nuestra zona cótica y desconocida, la mente oculta, el inconsciente, lo que vivimos en el vientre materno, la conexión con el árbol genealógico o el más allá</h3>')
         return a
     }
     function deleteAll(){
@@ -1008,13 +1011,13 @@ ApplicationWindow{
         return s
     }
     function htmlToText(htmlString) {
-      const h3Regex = /<h3[^>]*>(.*?)<\/h3>/i;
-      const match = htmlString.match(h3Regex);
-      if (match && match[1]) {
-        return match[1];
-      } else {
-        return "";
-      }
+        const h3Regex = /<h3[^>]*>(.*?)<\/h3>/i;
+        const match = htmlString.match(h3Regex);
+        if (match && match[1]) {
+            return match[1];
+        } else {
+            return "";
+        }
     }
     function getCapsImgesUrls(){
         var a=[]
@@ -1044,6 +1047,28 @@ ApplicationWindow{
         return a
     }
     function sinAcentos(cadena){
-      return cadena.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        return cadena.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    }
+    function getHouseTipoData(ih){
+        let json=app.uFullParams
+        let st=''
+        let ss=''
+        if(ih===1){
+            st=' SIGNO ASCENDENTE'
+            ss=' en '+app.aSigns[json.ph.h1.is]
+        }else if(ih===4){
+            st=' FONDO CIELO'
+            ss=' en '+app.aSigns[json.ph.h4.is]
+        }else if(ih===7){
+            st=' SIGNO DESCENDENTE'
+            ss=' en '+app.aSigns[json.ph.h7.is]
+        }else if(ih===10){
+            st=' MEDIO CIELO'
+            ss=' en '+app.aSigns[json.ph.h10.is]
+        }else{
+            st=''
+        }
+
+        return st+ss
     }
 }

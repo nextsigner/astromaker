@@ -1,1 +1,1 @@
-Se incluyen imágenes de casas y planetas en el html final
+Se logra crear html con imágenes.

@@ -57,38 +57,26 @@ def combinar_archivos(archivo_destino, lista_archivos, array_titulos, array_imgs
     try:
         rutas_archivos = lista_archivos.split(',')
         aTits = array_titulos.split(',')
-        aPngs = array_imgs.split(',')#[ruta.strip() for ruta in rutas_str.split(',')]
+        aPngs = array_imgs.split(',')
         with open(archivo_destino, 'w') as archivo_final:
             for ruta_archivo in rutas_archivos:
                 try:
                     with open(ruta_archivo.strip(), 'r') as archivo_origen:
                         contenido = archivo_origen.read()
                         contenido2 = contenido.replace('```html', '').replace('```', '')
-                        #archivo_final.write('<hr>')
                         if comienza_con_h3_espacio(aTits[index]):
                             archivo_final.write('<br>')
                             archivo_final.write('<hr>')
                             archivo_final.write('<a href="#0" style="color: #ff8833;">Volver al Inicio</a>')
-                            archivo_final.write(aTits[index].replace('@', ','))
+                            t=aTits[index].replace('@', ',')#.replace('CASA 1:', '').replace('CASA 2:', '').replace('CASA 3:', '').replace('CASA 4:', '').replace('CASA 5:', '').replace('CASA 6:', '').replace('CASA 7:', '').replace('CASA 8:', '').replace('CASA 9:', '').replace('CASA 10:', '').replace('CASA 11:', '').replace('CASA 12:', '')
+                            archivo_final.write(t)
                             if index > 1:
-                                #archivo_final.write('<h1>AAAAAAAAAAAA</h1>')
-                                #archivo_final.write('<h1>'+str(aPngs[indexImg])+'</h1>')
-                                #archivo_final.write('<h1>-->'+str(indexImg)+' ->:'+str(aPngs)+'</h1>')
-                                codigo_base64 = convertir_png_a_base64(aPngs[index-13])
+                                codigo_base64 = convertir_png_a_base64(aPngs[indexImg])
                                 codigo_html=''
                                 if codigo_base64:
                                   codigo_html += f'<img src="{codigo_base64}" style="width: 100%;" alt="Imagen">\n'
                                   archivo_final.write(codigo_html)
                                 indexImg=indexImg+1
-
-                            """if index > 13:
-                                codigo_base64 = convertir_png_a_base64(aPngs[index-13])
-                                codigo_html=''
-                                if codigo_base64:
-                                  codigo_html += f'<img src="{codigo_base64}" style="width: 100%;" alt="Imagen">\n'
-                                  archivo_final.write(codigo_html)"""
-
-
                             archivo_final.write(contenido2)
                         else:
                             archivo_final.write(aTits[index].replace('@', ','))
