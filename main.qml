@@ -16,6 +16,8 @@ ApplicationWindow{
     property bool dev: false
     property string sweBodiesPythonFile: 'zool_swe_portable_2.10.3.2_v1.py'
 
+    property string imgsPath: ''
+
     property int fs: Screen.width*0.02
     property color c1: 'black'
     property color c2: 'white'
@@ -30,6 +32,7 @@ ApplicationWindow{
     property var aSigns: ['Aries', 'Tauro', 'Géminis', 'Cáncer', 'Leo', 'Virgo', 'Libra', 'Escorpio', 'Sagitario', 'Capricornio', 'Acuario', 'Piscis']
     property var aSignsLowerStyle: ['aries', 'tauro', 'geminis', 'cancer', 'leo', 'virgo', 'libra', 'escorpio', 'sagitario', 'capricornio', 'acuario', 'piscis']
     property var aBodies: ['Sol', 'Luna', 'Mercurio', 'Venus', 'Marte', 'Júpiter', 'Saturno', 'Urano', 'Neptuno', 'Plutón', 'N.Norte', 'N.Sur', 'Quirón', 'Selena', 'Lilith', 'Pholus', 'Ceres', 'Pallas', 'Juno', 'Vesta']
+    property var aBodiesFiles: ['sol', 'luna', 'mercurio', 'venus', 'marte', 'jupiter', 'saturno', 'urano', 'neptuno', 'pluton', 'nodo_norte', 'nodo_sur', 'quiron', 'selena', 'lilith', 'pholus', 'ceres', 'pallas', 'juno', 'vesta']
 
     onUAspsDataChanged: {
         if(uAspsData!==''){
@@ -311,6 +314,19 @@ ApplicationWindow{
         }
     }
     function init(){
+        let args=Qt.application.arguments
+        let ip=''
+        for(var i0=0;i0<args.length;i0++){
+            let arg=args[i0]
+            if(arg.indexOf('-filePath=')>=0){
+                let m0=arg.split('-filePath=')
+                apps.uFilePath=m0[1]
+            }
+            if(arg.indexOf('-imgsPath=')>=0){
+                let m0=arg.split('-imgsPath=')
+                app.imgsPath=m0[1]
+            }
+        }
         if(!apps.enableAutoCons)return
         let f=apps.uFilePath
         if(!unik.fileExist(f)){
@@ -664,7 +680,7 @@ ApplicationWindow{
         c+='    }\n'
         c+='    Component.onCompleted:{\n'
         //c+='        console.log(\'zm.load() python3 "'+unik.currentFolderPath()+'/py/'+app.sweBodiesPythonFile+'" '+vd+' '+vm+' '+va+' '+vh+' '+vmin+' '+vgmt+' '+vlat+' '+vlon+' '+hsys+' '+unik.currentFolderPath()+' '+valt+'\')\n'
-        c+='        let cmd=\'python3 "'+unik.currentFolderPath()+'/mkArchivoFinal.py" "'+apps.gitHubHtmlRepUrl+'/Carta_Completa_de_'+app.cNom+'.html"  "'+aFileList.toString()+'" "'+aTitList.toString()+'"\'\n'
+        c+='        let cmd=\'python3 "'+unik.currentFolderPath()+'/mkArchivoFinal.py" "'+apps.gitHubHtmlRepUrl+'/Carta_Completa_de_'+app.cNom+'.html"  "'+aFileList.toString()+'" "'+aTitList.toString()+'" "'+getCapsImgesUrls()+'"\'\n'
         c+='        run(cmd)\n'
         c+='        console.log(cmd)\n'
         //c+='        Qt.quit()\n'
@@ -999,5 +1015,35 @@ ApplicationWindow{
       } else {
         return "";
       }
+    }
+    function getCapsImgesUrls(){
+        var a=[]
+        //let url='/home/ns/Documentos/Zool/caps/Ricardo/venus_en_leo_en_casa_6.png'
+        let url=''
+        if(app.imgsPath!==''){
+            url=app.imgsPath
+        }else{
+            url=unik.getPath(3)+'/astromaker/'+app.cNom.replace(/ /g, '_')
+        }
+        ta1.text+='\nimgPath: '+app.imgsPath+'\n'
+        let json=app.uFullParams
+        for(var i=0;i<12;i++){
+            let fn='casa_'+parseInt(i+1)+'.png'
+            a.push('"'+url+'/'+fn+'"')
+        }
+
+        for(i=0;i<Object.keys(json.pc).length;i++){
+            let j=json.pc['c'+i]//lm.get(i).j
+            let b=sinAcentos(app.aBodies[i]).toLowerCase()
+            let s=app.aSignsLowerStyle[j.is]//sinAcentos(app.aSigns[j.is])
+            let h=j.ih
+            let fn=(''+b+'_en_'+s+'_en_casa_'+h+'.png').toLowerCase()
+            a.push('"'+url+'/'+fn+'"')
+        }
+        ta1.text+='\naImgs: '+a.toString()+'\n'
+        return a
+    }
+    function sinAcentos(cadena){
+      return cadena.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     }
 }

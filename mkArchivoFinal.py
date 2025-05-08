@@ -1,4 +1,40 @@
+import base64
 import sys
+
+def convertir_png_a_base64(ruta_imagen):
+  try:
+    with open(ruta_imagen, "rb") as imagen_file:
+      imagen_codificada = base64.b64encode(imagen_file.read()).decode('utf-8')
+      return f"data:image/png;base64,{imagen_codificada}"
+  except FileNotFoundError:
+    print(f"Error: No se encontró el archivo en la ruta: {ruta_imagen}")
+    return None
+  except Exception as e:
+    print(f"Ocurrió un error al procesar {ruta_imagen}: {e}")
+    return None
+"""
+if __name__ == "__main__":
+  if len(sys.argv) < 2:
+    print("Uso: python script.py ruta1.png,ruta2.png,ruta3.png,...")
+    sys.exit(1)
+
+  rutas_str = sys.argv[1]
+  rutas_png = [ruta.strip() for ruta in rutas_str.split(',')]
+
+  codigo_html = ""
+  for ruta in rutas_png:
+    codigo_base64 = convertir_png_a_base64(ruta)
+    if codigo_base64:
+      codigo_html += f'<img src="{codigo_base64}" style="width: 100%;" alt="Imagen">\n'
+
+  if codigo_html:
+    print("Código HTML generado:")
+    print(codigo_html)
+  else:
+    print("No se generó ningún código HTML.")
+"""
+
+
 
 def comienza_con_h3_espacio(texto):
   """
@@ -15,11 +51,13 @@ def comienza_con_h3_espacio(texto):
   else:
     return False
 
-def combinar_archivos(archivo_destino, lista_archivos, array_titulos):
+def combinar_archivos(archivo_destino, lista_archivos, array_titulos, array_imgs):
     index=0
+    indexImg=0
     try:
         rutas_archivos = lista_archivos.split(',')
         aTits = array_titulos.split(',')
+        aPngs = array_imgs.split(',')#[ruta.strip() for ruta in rutas_str.split(',')]
         with open(archivo_destino, 'w') as archivo_final:
             for ruta_archivo in rutas_archivos:
                 try:
@@ -32,6 +70,25 @@ def combinar_archivos(archivo_destino, lista_archivos, array_titulos):
                             archivo_final.write('<hr>')
                             archivo_final.write('<a href="#0" style="color: #ff8833;">Volver al Inicio</a>')
                             archivo_final.write(aTits[index].replace('@', ','))
+                            if index > 1:
+                                #archivo_final.write('<h1>AAAAAAAAAAAA</h1>')
+                                #archivo_final.write('<h1>'+str(aPngs[indexImg])+'</h1>')
+                                #archivo_final.write('<h1>-->'+str(indexImg)+' ->:'+str(aPngs)+'</h1>')
+                                codigo_base64 = convertir_png_a_base64(aPngs[index-13])
+                                codigo_html=''
+                                if codigo_base64:
+                                  codigo_html += f'<img src="{codigo_base64}" style="width: 100%;" alt="Imagen">\n'
+                                  archivo_final.write(codigo_html)
+                                indexImg=indexImg+1
+
+                            """if index > 13:
+                                codigo_base64 = convertir_png_a_base64(aPngs[index-13])
+                                codigo_html=''
+                                if codigo_base64:
+                                  codigo_html += f'<img src="{codigo_base64}" style="width: 100%;" alt="Imagen">\n'
+                                  archivo_final.write(codigo_html)"""
+
+
                             archivo_final.write(contenido2)
                         else:
                             archivo_final.write(aTits[index].replace('@', ','))
@@ -42,7 +99,7 @@ def combinar_archivos(archivo_destino, lista_archivos, array_titulos):
                 except FileNotFoundError:
                     print(f"¡Error! No se encontró el archivo: {ruta_archivo.strip()}")
                 except Exception as e:
-                    print(f"¡Error al leer el archivo {ruta_archivo.strip()}: {e}")
+                    print(f"¡Error al leer el archivo {ruta_archivo.strip()}: {e}\n")
         print(f"\n¡Proceso completado! El contenido de los archivos se ha guardado en: {archivo_destino}")
         print(f"\nUrl de Carta: file://{archivo_destino}")
 
@@ -50,11 +107,12 @@ def combinar_archivos(archivo_destino, lista_archivos, array_titulos):
         print(f"¡Ocurrió un error general: {e}")
 
 if __name__ == "__main__":
-    if len(sys.argv) == 4:
+    if len(sys.argv) == 5:
         nombre_archivo_destino = sys.argv[1]
         rutas_archivos = sys.argv[2]
         array_titulos = sys.argv[3]
-        combinar_archivos(nombre_archivo_destino, rutas_archivos, array_titulos)
+        array_imgs = sys.argv[4]
+        combinar_archivos(nombre_archivo_destino, rutas_archivos, array_titulos, array_imgs)
     else:
-        print("Uso: python script.py <archivo_destino> <ruta_archivo1,ruta_archivo2,...> <tit_1, tit2,...>")
-        print("Ejemplo: python combinar.py archivo_final.html /home/usuario/archivo1.html,/datos/archivo2.html,/tmp/archivo3.html")
+        print("Uso: python script.py <archivo_destino> <ruta_archivo1,ruta_archivo2,...> <tit_1, tit2,...> <img1.png, img2.png, img3.png>" )
+        print("Ejemplo: python combinar.py archivo_final.html /home/usuario/archivo1.html,/datos/archivo2.html,/tmp/archivo3.html" "tit1, tit2, tit3" "img1.png, img3.png, img2.png")

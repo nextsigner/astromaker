@@ -1,1 +1,1 @@
-Se suben html a zool-html-files
+Se incluyen imágenes de casas y planetas en el html final
